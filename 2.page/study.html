@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chế độ học - Lật từng thẻ</title>
+    
+    <!-- Font Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../1.style/study.css">
+</head>
+<body>
+    <div class="study-container">
+        <div class="header">
+            <a href="library.html" class="back-link">← Về thư viện</a>
+            <div class="progress-info">
+                Thẻ <span id="current-index">1</span> / <span id="total-cards">0</span>
+            </div>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div id="study-area"></div>
+
+        <div class="nav-buttons" id="nav-buttons">
+            <button class="nav-btn" id="prev-btn">◀ Thẻ trước</button>
+            <button class="nav-btn learned" id="mark-learned-btn">✅ Đã nhớ</button>
+            <button class="nav-btn not-learned" id="mark-not-learned-btn">🔄 Chưa nhớ</button>
+            <button class="nav-btn" id="next-btn">Thẻ sau ▶</button>
+        </div>
+
+        <div class="hint">
+            💡 Click vào thẻ để lật xem đáp án &nbsp;·&nbsp; "Đã nhớ" để ghi nhớ &nbsp;·&nbsp; "Chưa nhớ" để ôn lại sau
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="2.script/study.js"></script>
+</body>
+</html>
