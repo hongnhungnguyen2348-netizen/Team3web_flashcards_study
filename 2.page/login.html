@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOGIN</title>
     <link rel="stylesheet" href="../1.style/login.css">
 </head>
@@ -12,7 +14,7 @@
                 <button class="signinbtn">Sign In</button>
             </div>
             <div class="box signup">
-                <h2>Already Have An Account?</h2>
+                <h2>Create An Account</h2>
                 <button class="signupbtn">Register</button>
             </div>
         </div>
@@ -20,9 +22,10 @@
             <div class="form signinform">
                 <form>
                     <h3>Sign In</h3>
-                    <input type="text" placeholder="Username">
-                    <input type="password" placeholder="Password">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="password" name="password" placeholder="Password">
                     <input type="submit" value="Sign In">
+                    <a href="#">Forget Password?</a>
                 </form>
             </div>
             <div class="form signupform">
@@ -37,7 +40,6 @@
             </div>
         </div>
     </div>
-
     <script src="../4.script/login.js"></script>
 </body>
 </html>

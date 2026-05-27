@@ -10,11 +10,11 @@ body{
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #c8d9e6;
+    background: #c3d3f3;
     transition: .5s; 
 }
 body.active{
-    background: #31487A;
+    background: #212842;
 }
 .container{
     position: relative;
@@ -60,7 +60,7 @@ body.active{
 .form-box.active{
     left: 50%;
 }
-.box.h2{
+.box h2{
     color: #fff;
     font-size: 1.2em;
     font-weight: 500;
@@ -78,6 +78,7 @@ body.active{
 .form-box .form{
     position: absolute;
     width: 80%;
+    left: 10%;
     transition: .5s;
     padding: 50px;
 }
@@ -93,7 +94,7 @@ body.active{
     transition-delay: 0; 
 }
 .form-box.active .signupform{
-    left: 0%;
+    left: 10%;
     transition-delay: .25s; 
 }
 .form-box .form form{
@@ -103,7 +104,7 @@ body.active{
 }
 .form form input{
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 14px 12px;
     outline: none;
     border: 1px solid #333;
 }
@@ -114,9 +115,20 @@ body.active{
     margin-bottom: 20px;
 }
 .form form input[type="submit"]{
-    background: #c8d9e6;
+    background: #92acc1;
     border: none;
     max-width: 100px;
     color:#fff;
     cursor: pointer;
+}
+.form form input[value="Sign Up"]{
+    background: #212842;
+    border: none;
+    max-width: 100px;
+    color:#fff;
+    cursor: pointer;
+}
+a{
+   color: #333;
+   font-size: 14px;
 }
