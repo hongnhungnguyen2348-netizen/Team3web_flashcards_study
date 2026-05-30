@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/hongnhungnguyen2348-netizen/Team3web_flashcards_study#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.6.3"
   }
 }

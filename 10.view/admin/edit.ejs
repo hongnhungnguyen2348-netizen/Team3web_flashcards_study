@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sửa nội dung</title>
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main>
+    <h1>Sửa flashcard/bài viết</h1>
+    
+    <form id="editForm">
+      <input type="text" name="title" value="<%= content.title %>" required>
+      <textarea name="body" rows="10" required><%= content.body %></textarea>
+      <button type="submit">Cập nhật</button>
+    </form>
+  </main>
+  
+  <script>
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = {
+        title: document.querySelector('input[name="title"]').value,
+        body: document.querySelector('textarea[name="body"]').value
+      };
+      
+      const contentId = '<%= content._id %>';
+      const response = await fetch(`/admin/edit/${contentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        alert('Cập nhật thành công');
+      } else {
+        alert('Cập nhật thất bại');
+      }
+    });
+  </script>
+</body>
+</html>
