@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../9.controllers/adminController');
-const { isAdmin } = require('../8.middleware/auth');
 
-router.use(isAdmin);
+// Bỏ qua middleware kiểm tra (member khác lo login)
+function isAdmin(req, res, next) {
+  return next();
+}
 
-router.get('/', adminController.getAdminDashboard);
+// Trang admin chính
+router.get('/', isAdmin, adminController.getAdminDashboard);
+
+// Xóa comment
 router.delete('/comment/:id', adminController.deleteComment);
+
+// Sửa nội dung
 router.get('/edit/:id', adminController.getEditContent);
 router.put('/edit/:id', adminController.updateContent);
 

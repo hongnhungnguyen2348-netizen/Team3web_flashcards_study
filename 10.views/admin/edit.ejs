@@ -1,43 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Sửa nội dung</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản trị - Auto Quiz</title>
+  <link rel="stylesheet" href="/1.style/admin.css">
 </head>
 <body>
-  <%- include('../partials/header') %>
-  
-  <main>
-    <h1>Sửa flashcard/bài viết</h1>
+
+  <!-- Header giống Auto Quiz -->
+  <div class="admin-header">
+    <h1>Auto Quiz <span>| Quản trị</span></h1>
+  </div>
+
+  <main class="admin-container">
     
-    <form id="editForm">
-      <input type="text" name="title" value="<%= content.title %>" required>
-      <textarea name="body" rows="10" required><%= content.body %></textarea>
-      <button type="submit">Cập nhật</button>
-    </form>
+    <!-- 3 thống kê chính -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>TỔNG LƯỢT XEM</h3>
+        <div class="stat-number"><%= totalViews %></div>
+      </div>
+      <div class="stat-card">
+        <h3>TỔNG BÌNH LUẬN</h3>
+        <div class="stat-number"><%= totalComments %></div>
+      </div>
+      <div class="stat-card">
+        <h3>FLASHCARD</h3>
+        <div class="stat-number"><%= totalFlashcards %></div>
+      </div>
+    </div>
+
+    <!-- Quản lý bình luận -->
+    <div class="comments-section">
+      <h2 class="section-title">📝 Quản lý bình luận</h2>
+      
+      <% if(comments.length === 0) { %>
+        <p style="color: #999; text-align: center;">Chưa có bình luận nào.</p>
+      <% } else { %>
+        <table class="comments-table">
+          <thead>
+            <tr><th>Người dùng</th><th>Bình luận</th><th>Đánh giá</th><th>Ngày</th><th></th></tr>
+          </thead>
+          <tbody id="commentList">
+            <% comments.forEach(comment => { %>
+              <tr data-id="<%= comment._id %>">
+                <td><%= comment.username %></td>
+                <td class="comment-content"><%= comment.content %></td>
+                <td> <%= '★'.repeat(comment.rating) %><%= '☆'.repeat(5-comment.rating) %></td>
+                <td><%= new Date(comment.createdAt).toLocaleDateString('vi-VN') %></td>
+                <td><button class="btn-delete delete-comment">Xóa</button></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+    <!-- Gợi ý nhanh -->
+    <div style="background: white; border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid #eee;">
+      <span style="color: #888;">✏️</span>
+      <a href="/admin/edit-list" style="color: #1a1a1a; margin-left: 0.5rem;">Quản lý nội dung flashcard →</a>
+    </div>
   </main>
-  
-  <script>
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = {
-        title: document.querySelector('input[name="title"]').value,
-        body: document.querySelector('textarea[name="body"]').value
-      };
-      
-      const contentId = '<%= content._id %>';
-      const response = await fetch(`/admin/edit/${contentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const result = await response.json();
-      if (result.success) {
-        alert('Cập nhật thành công');
-      } else {
-        alert('Cập nhật thất bại');
-      }
-    });
-  </script>
+
+  <script src="/js/admin.js"></script>
 </body>
 </html>
+
+
+

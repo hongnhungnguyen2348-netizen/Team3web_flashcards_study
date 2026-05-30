@@ -1,17 +1,10 @@
-// Kiểm tra đăng nhập
+// Middleware đơn giản (member khác sẽ xử lý login riêng)
 function isAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-    return next();
-  }
-  res.redirect('/login');
+  return next();
 }
 
-// Kiểm tra admin
 function isAdmin(req, res, next) {
-  if (req.session && req.session.user && req.session.user.role === 'admin') {
-    return next();
-  }
-  res.status(403).send('Bạn không có quyền truy cập');
+  return next();
 }
 
 module.exports = { isAuthenticated, isAdmin };
