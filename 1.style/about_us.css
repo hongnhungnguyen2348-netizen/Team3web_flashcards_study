@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* 3. Column Left (Background Image) */
+.column-left {
+    flex: 1;
+    background-image: url('../3.image/autoquiz.png'); /* Sử dụng ảnh có sẵn */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 4. Column Right (Content) */
+.column-right {
+    flex: 1;
+    background-color: #f4f4f4; /* Màu xám nhạt nguyên bản */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+}
+
+.about {
+    max-width: 600px;
+}
+
+.about h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.about p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+    text-align: justify;
+}
+
+/* 5. Button Group & Buttons */
+.button-group {
+    display: flex;
+    gap: 20px;
+}
+
+.btn {
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid #333;
+    border-radius: 50px; /* Bo góc tròn nguyên bản */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #333;
+    color: #fff;
+    outline: none;
+}
+
+/* Hiệu ứng Hover nguyên bản */
+.btn:hover {
+    transform: scale(1.05);
+    background-color: transparent;
+    color: #333;
+}
+
+.btn-contact {
+    background-color: transparent;
+    color: #333;
+}
+
+.btn-contact:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* 6. Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .column-left {
+        flex: 2;
+        min-height: 400px;
+    }
+
+    .column-right {
+        flex: 1;
+        padding: 40px 20px;
+    }
+
+    .about h1 {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .button-group {
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    .about h1 {
+        font-size: 2rem;
+    }
+}
