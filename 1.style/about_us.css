@@ -19,7 +19,7 @@ body {
 /* 3. Column Left (Background Image) */
 .column-left {
     flex: 1;
-    background-image: url('../3.image/autoquiz.png'); /* Sử dụng ảnh có sẵn */
+    background-image: url('../3.image/nen.jpg'); /* Sử dụng ảnh có sẵn */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
