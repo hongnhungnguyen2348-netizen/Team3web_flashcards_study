@@ -22,10 +22,12 @@ app.use(session({
 // === QUAN TRỌNG: Import routes TRƯỚC ===
 const adminRoutes = require('./6.routes/admin');
 const commentRoutes = require('./6.routes/comment');
+const authRoutes = require('./6.routes/authRoutes');
 //const authRoutes = require('./8.middleware/auth');
 // === Dùng routes TRƯỚC ===
 app.use('/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/auth', authRoutes);
 //app.use('/auth', authRoutes);
 
 // === Static file để ở SAU CÙNG ===
