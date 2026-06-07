@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Flashcard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../1.style/flashcard.css">
+</head>
+<body>
+    <!-- Header chứa nút quay lại thư viện và chỉ số tiến độ học tập -->
+    <header class="study-header">
+        <button class="back-button" type="button" id="backButton">← Về thư viện</button>
+        <div class="progress-text" id="progressText">Thẻ 1 / 1</div>
+    </header>
+
+    <main class="study-main">
+        <section class="study-title">
+            <p>Đang học bộ</p>
+            <h1 id="collectionTitle">Flashcard</h1>
+        </section>
+
+        <!-- Khối perspective giúp hiệu ứng lật 3D có chiều sâu -->
+        <section class="flashcard-stage">
+            <button class="flip-card" type="button" id="flipCard" aria-label="Nhấn để lật thẻ">
+                <span class="card-face card-front">
+                    <span class="face-label">Thuật ngữ / Câu hỏi</span>
+                    <span class="card-content" id="frontContent">Nội dung mặt trước</span>
+                    <span class="flip-hint">tap to flip</span>
+                </span>
+
+                <span class="card-face card-back">
+                    <span class="face-label">Định nghĩa / Câu trả lời</span>
+                    <span class="card-content" id="backContent">Nội dung mặt sau</span>
+                    <span class="flip-hint">tap to flip</span>
+                </span>
+            </button>
+        </section>
+
+        <!-- Footer chứa điều hướng thẻ và đánh dấu trạng thái ghi nhớ -->
+        <footer class="study-controls">
+            <button class="control-button" type="button" id="prevButton">← Thẻ trước</button>
+            <button class="status-button remembered" type="button" id="rememberedButton">Đã nhớ</button>
+            <button class="status-button forgot" type="button" id="forgotButton">Chưa nhớ</button>
+            <button class="control-button" type="button" id="nextButton">Thẻ sau →</button>
+        </footer>
+    </main>
+
+    <script src="../4.script/flashcard.js"></script>
+</body>
+</html>

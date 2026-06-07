@@ -12,8 +12,7 @@ body{
     color:aliceblue;
     background:
         linear-gradient(135deg,rgba(5,12,30,.92),rgba(6,43,73,.86)),
-        url("../3.image/autoquiz.png") center/360px no-repeat,
-        #081b29;
+        #212842;
     overflow-x:hidden;
 }
 
@@ -74,7 +73,7 @@ body{
 }
 
 .navbar a:hover{
-    color:#00abf0;
+    color:#c3d3f3;
 }
 
 #check{
@@ -136,8 +135,8 @@ body{
     border:2px solid #fff;
     border-radius:6px;
     outline:none;
-    background:#00abf0;
-    color:#fff;
+    background:#c3d3f3;
+    color:#081b29;
     font-size:18px;
     font-weight:600;
     text-decoration:none;
@@ -148,8 +147,8 @@ body{
 
 .start-btn:hover{
     background:#fff;
-    color:#00abf0;
-    border-color:#00abf0;
+    color:#c3d3f3;
+    border-color:#c3d3f3;
     transform:translateY(-2px);
 }
 

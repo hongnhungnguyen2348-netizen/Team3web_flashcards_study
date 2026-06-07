@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư viện Flashcard</title>
+    <link rel="stylesheet" href="../1.style/library1.css">
+</head>
+<body>
+    <!-- Sidebar cố định bên trái để điều hướng các khu vực chính của ứng dụng -->
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">▣</span>
+            <span>FlashStudy</span>
+        </div>
+
+        <nav class="nav-menu" aria-label="Điều hướng chính">
+            <button class="nav-item active" type="button" data-page="home">
+                <span class="nav-icon">⌂</span>
+                <span>Trang chủ</span>
+            </button>
+
+            <button class="nav-item" type="button" id="openCreateModal">
+                <span class="nav-icon">＋</span>
+                <span>Tạo flashcard</span>
+            </button>
+
+            <button class="nav-item" type="button" data-page="account">
+                <span class="nav-icon">◉</span>
+                <span>Tài khoản của bạn</span>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <!-- Trang chủ: hiển thị thư viện và các nút thao tác với bộ sưu tập đã chọn -->
+        <section class="page active" id="homePage">
+            <div class="page-header">
+                <div>
+                    <p class="eyebrow">Không gian học tập</p>
+                    <h1>Thư viện Flashcard</h1>
+                    <p class="selected-hint" id="selectedHint">Chọn một bộ sưu tập để sửa, xóa hoặc bắt đầu học.</p>
+                </div>
+
+                <div class="home-actions">
+                    <button class="secondary-button" type="button" id="editCollectionButton">Sửa bộ sưu tập</button>
+                    <button class="danger-button" type="button" id="deleteCollectionButton">Xóa bộ sưu tập</button>
+                    <button class="primary-button" type="button" id="studyFlashcardButton">Học flashcard</button>
+                </div>
+            </div>
+
+            <div class="collection-grid" id="collectionGrid"></div>
+        </section>
+
+        <!-- Trang soạn thảo: tạo mới hoặc chỉnh sửa các thẻ trong bộ flashcard -->
+        <section class="page" id="editorPage">
+            <div class="page-header">
+                <div>
+                    <p class="eyebrow" id="editorModeLabel">Bộ flashcard mới</p>
+                    <h1 id="editorTitle">Soạn thảo flashcard</h1>
+                </div>
+                <button class="secondary-button" type="button" data-page="home">Về thư viện</button>
+            </div>
+
+            <div class="editor-panel">
+                <div class="input-group">
+                    <label for="termInput">THUẬT NGỮ / CÂU HỎI</label>
+                    <textarea id="termInput" rows="6" placeholder="Nhập thuật ngữ hoặc câu hỏi..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="definitionInput">ĐỊNH NGHĨA / CÂU TRẢ LỜI</label>
+                    <textarea id="definitionInput" rows="6" placeholder="Nhập định nghĩa hoặc câu trả lời..."></textarea>
+                </div>
+
+                <button class="primary-button add-card-button" type="button" id="addCardButton">+ Thêm thẻ</button>
+                <button class="secondary-button cancel-edit-button" type="button" id="cancelEditCardButton">Hủy sửa</button>
+            </div>
+
+            <div class="flashcard-list">
+                <h2>Danh sách thẻ đã thêm</h2>
+                <div id="createdCards" class="created-cards">
+                    <p class="empty-state">Chưa có thẻ nào trong bộ này.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang tài khoản: dữ liệu mẫu phục vụ giao diện bài tập -->
+        <section class="page" id="accountPage">
+            <div class="page-header">
+                <div>
+                    <p class="eyebrow">Hồ sơ cá nhân</p>
+                    <h1>Tài khoản của bạn</h1>
+                </div>
+            </div>
+
+            <div class="account-card">
+                <div class="avatar">U</div>
+                <div class="account-info">
+                    <div class="info-row">
+                        <span>Tên đăng nhập</span>
+                        <strong>user_flashcard</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Email</span>
+                        <strong>user.flashcard@example.com</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal đặt tên thư mục flashcard -->
+    <div class="modal-overlay" id="createModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-folder-icon">▰</div>
+            <h2 id="modalTitle">Đặt tên cho thư mục của bạn</h2>
+            <input type="text" id="folderNameInput" placeholder="Ví dụ: Sinh học lớp 12">
+            <p class="modal-error" id="modalError"></p>
+
+            <div class="modal-actions">
+                <button class="secondary-button" type="button" id="cancelCreate">Hủy</button>
+                <button class="primary-button" type="button" id="confirmCreate">Tạo</button>
+            </div>
+        </div>
+    </div>
+    <script src="../4.script/library1.js"></script>
+</body>
+</html>

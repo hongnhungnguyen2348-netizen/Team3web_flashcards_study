@@ -14,7 +14,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background: #222;
+    background: #212842;
 }
 .contact .content h2 {
     font-size: 3em;
@@ -59,7 +59,7 @@
     transition: 0.5s;
 }
 .container .contactInfo .box:hover .icon {
-    background: #00bcd4;
+    background: #c3d3f3;
     color: #fff;
 }
 .container .contactInfo .box .text {
@@ -72,7 +72,7 @@
 }
 .container .contactInfo .box .text h3 {
     font-weight: 500;
-    color: #00bcd4;
+    color: #c3d3f3;
 }
 .container .contactInfo .txt {
     color: #fff;
@@ -97,7 +97,7 @@
     transition: 0.5s;
 }
 .sci li a:hover {
-    color: #00bcd4;
+    color: #c3d3f3;
 
 }
 .container .contactForm {
@@ -148,7 +148,7 @@
 }
 .container .contactForm .inputBox input[type="submit"] {
     width: 100%;
-    background: #00bcd4;
+    background: #212842;
     color: #fff;
     border: none;
     cursor: pointer;

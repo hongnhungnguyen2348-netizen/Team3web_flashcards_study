@@ -28,7 +28,7 @@ body {
 /* 4. Column Right (Content) */
 .column-right {
     flex: 1;
-    background-color: #f4f4f4; /* Màu xám nhạt nguyên bản */
+    background-color: #212842; /* Màu xám nhạt nguyên bản */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,14 +42,14 @@ body {
 .about h1 {
     font-size: 3rem;
     margin-bottom: 20px;
-    color: #333;
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
 
 .about p {
     font-size: 1.1rem;
-    color: #555;
+    color: #fff;
     margin-bottom: 30px;
     text-align: justify;
 }
@@ -64,7 +64,7 @@ body {
     padding: 15px 25px;
     font-size: 1rem;
     font-weight: 600;
-    border: 2px solid #333;
+    border: 2px solid #c3d3f3;
     border-radius: 50px; /* Bo góc tròn nguyên bản */
     cursor: pointer;
     transition: all 0.3s ease;
@@ -77,16 +77,26 @@ body {
 .btn:hover {
     transform: scale(1.05);
     background-color: transparent;
-    color: #333;
+    color: #c3d3f3;
 }
 
 .btn-contact {
     background-color: transparent;
-    color: #333;
+    color: #c3d3f3;
+}
+
+.btn-learn {
+    background-color: transparent;
+    color: #c3d3f3;
 }
 
 .btn-contact:hover {
-    background-color: #333;
+    background-color: #c3d3f3;
+    color: #fff;
+}
+
+.btn-learn:hover {
+    background-color: #c3d3f3;
     color: #fff;
 }
 
