@@ -64,7 +64,7 @@ signinForm.onsubmit = async function (e) {
         if (result.user.role === 'admin') {
             window.location.href = '';        //  đổi sang trang admin của nhóm
         } else {
-            window.location.href = '/flashcard.html';   //  đổi sang trang user (home/flashcard)
+            window.location.href = '../2.page/library1.html';   //  đổi sang trang user (home/flashcard)
         }
     }
 };

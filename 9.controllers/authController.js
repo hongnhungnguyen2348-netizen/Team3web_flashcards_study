@@ -1,6 +1,6 @@
 // 9.controllers/authController.js
 const pool = require('../5.config/db.js');
-
+const bcrypt = require('bcrypt');
 // POST /api/auth/signup
 async function signup(req, res) {
     try {
@@ -21,11 +21,11 @@ async function signup(req, res) {
         if (existing.length > 0) {
             return res.status(409).json({ ok: false, msg: 'Username hoặc email đã tồn tại' });
         }
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Tuần 1: lưu plaintext, tuần 2 sẽ thêm bcrypt
         const [result] = await pool.query(
             'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-            [username, email, password]
+            [username, email, hashedPassword]
         );
 
         res.status(201).json({ ok: true, msg: 'Đăng ký thành công', userId: result.insertId });
@@ -54,9 +54,11 @@ async function signin(req, res) {
 
         const user = rows[0];
 
-        if (user.password !== password) {
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {        
             return res.status(401).json({ ok: false, msg: 'Sai mật khẩu' });
         }
+         req.session.user = { id: user.id, username: user.username, role: user.role };
 
         res.json({
             ok: true,
@@ -68,5 +70,20 @@ async function signin(req, res) {
         res.status(500).json({ ok: false, msg: 'Lỗi server' });
     }
 }
-
-module.exports = { signup, signin };
+function me(req, res) {
+    if (req.session.user) {
+        res.json({ ok: true, user: req.session.user });
+    } else {
+        res.json({ ok: false, msg: 'Chưa đăng nhập' });
+    }
+}
+// POST /api/auth/signout — đăng xuất, hủy session
+function signout(req, res) {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ ok: false, msg: 'Lỗi đăng xuất' });
+        }
+        res.json({ ok: true, msg: 'Đăng xuất thành công' });
+    });
+}
+module.exports = { signup, signin, me, signout };
