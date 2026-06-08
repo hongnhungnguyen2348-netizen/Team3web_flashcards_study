@@ -90,7 +90,7 @@ function markCurrentCard(status) {
 }
 
 backButton.addEventListener("click", () => {
-    window.location.href = "index.html";
+    window.location.href = "library1.html";
 });
 
 flipCard.addEventListener("click", toggleFlipCard);
