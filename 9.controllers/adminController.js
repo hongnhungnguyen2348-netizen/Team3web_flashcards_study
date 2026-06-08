@@ -1,70 +1,77 @@
-// === DÙNG DỮ LIỆU GIẢ, KHÔNG CẦN DATABASE ===
-
-// Danh sách flashcard giả (để test edit)
-let fakeFlashcards = [
-  { id: 1, title: 'Động từ bất quy tắc - Go', body: 'Go - Went - Gone', type: 'flashcard' },
-  { id: 2, title: 'Từ vựng gia đình', body: 'Father, Mother, Brother, Sister', type: 'flashcard' },
-  { id: 3, title: 'Thời tiết', body: 'Sunny, Rainy, Cloudy, Windy', type: 'flashcard' }
-];
+const db = require('../database');
 
 // Trang admin dashboard
-exports.getAdminDashboard = (req, res) => {
-  const fakeData = {
-    totalViews: 1234,
-    totalComments: 56,
-    totalFlashcards: fakeFlashcards.length,
-    comments: [
-      { id: 1, username: 'user1', content: 'Flashcard rất hay!', rating: 5, createdAt: new Date() },
-      { id: 2, username: 'user2', content: 'Cần thêm ví dụ', rating: 4, createdAt: new Date() }
-    ]
-  };
-  
-  res.render('admin/index', {
-    totalViews: fakeData.totalViews,
-    totalComments: fakeData.totalComments,
-    totalFlashcards: fakeData.totalFlashcards,
-    comments: fakeData.comments
-  });
-};
-
-// Xóa comment (giả)
-exports.deleteComment = (req, res) => {
-  res.json({ success: true, message: 'Đã xóa (demo)' });
-};
-
-// === LẤY NỘI DUNG FLASHCARD ĐỂ SỬA ===
-exports.getEditContent = (req, res) => {
-  const flashcardId = parseInt(req.params.id);
-  const flashcard = fakeFlashcards.find(f => f.id === flashcardId);
-  
-  if (!flashcard) {
-    return res.send('<h3>Không tìm thấy flashcard</h3><a href="/admin">Quay lại</a>');
+exports.getAdminDashboard = async (req, res) => {
+  try {
+    // Lấy tổng số bình luận
+    const [commentRows] = await db.execute('SELECT COUNT(*) as count FROM comments');
+    const totalComments = commentRows[0].count;
+    
+    // Lấy tổng số flashcard
+    const [contentRows] = await db.execute('SELECT COUNT(*) as count FROM contents');
+    const totalFlashcards = contentRows[0].count;
+    
+    // Lấy danh sách bình luận gần nhất
+    const [comments] = await db.execute(`
+      SELECT * FROM comments ORDER BY createdAt DESC LIMIT 20
+    `);
+    
+    // Số lượt xem giả (có thể thay bằng biến đếm sau)
+    const totalViews = Math.floor(Math.random() * 10000) + 1000;
+    
+    res.render('admin/index', {
+      totalViews: totalViews,
+      totalComments: totalComments,
+      totalFlashcards: totalFlashcards,
+      comments: comments
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Lỗi server: ' + err.message);
   }
-  
-  res.render('admin/edit', { content: flashcard });
 };
 
-// === CẬP NHẬT FLASHCARD ===
-exports.updateContent = (req, res) => {
-  const flashcardId = parseInt(req.params.id);
-  const { title, body } = req.body;
-  
-  const index = fakeFlashcards.findIndex(f => f.id === flashcardId);
-  
-  if (index === -1) {
-    return res.json({ success: false, error: 'Không tìm thấy flashcard' });
+// Xóa comment
+exports.deleteComment = async (req, res) => {
+  try {
+    await db.execute('DELETE FROM comments WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
   }
-  
-  // Cập nhật dữ liệu
-  fakeFlashcards[index] = { ...fakeFlashcards[index], title, body };
-  
-  console.log('✅ Đã cập nhật flashcard ID:', flashcardId);
-  console.log('📝 Dữ liệu mới:', { title, body });
-  
-  res.json({ success: true, message: 'Cập nhật thành công!' });
 };
 
-// (Tuỳ chọn) Xem danh sách flashcard để test
-exports.getFlashcardList = (req, res) => {
-  res.json(fakeFlashcards);
+// Lấy nội dung flashcard để sửa
+exports.getEditContent = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM contents WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.send('<h3>Không tìm thấy flashcard</h3><a href="/admin">Quay lại</a>');
+    }
+    res.render('admin/edit', { content: rows[0] });
+  } catch (err) {
+    res.status(500).send('Lỗi: ' + err.message);
+  }
+};
+
+// Cập nhật flashcard
+exports.updateContent = async (req, res) => {
+  try {
+    const { title, body } = req.body;
+    await db.execute('UPDATE contents SET title = ?, body = ? WHERE id = ?', 
+      [title, body, req.params.id]);
+    res.json({ success: true, message: 'Cập nhật thành công!' });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+};
+
+// Danh sách flashcard (thêm mới)
+exports.getFlashcardList = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM contents ORDER BY createdAt DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
