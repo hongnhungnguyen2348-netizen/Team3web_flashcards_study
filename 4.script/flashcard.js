@@ -10,8 +10,6 @@ const frontContent = document.getElementById("frontContent");
 const backContent = document.getElementById("backContent");
 const prevButton = document.getElementById("prevButton");
 const nextButton = document.getElementById("nextButton");
-const rememberedButton = document.getElementById("rememberedButton");
-const forgotButton = document.getElementById("forgotButton");
 
 const collections = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 const selectedCollectionId = localStorage.getItem(SELECTED_KEY);
@@ -49,9 +47,6 @@ function renderCurrentCard() {
     frontContent.textContent = currentCard.term;
     backContent.textContent = currentCard.definition;
     progressText.textContent = `Thẻ ${currentIndex + 1} / ${cards.length}`;
-
-    rememberedButton.classList.toggle("active", studyStatus[currentIndex] === "remembered");
-    forgotButton.classList.toggle("active", studyStatus[currentIndex] === "forgot");
 }
 
 // Lật thẻ 180 độ theo chiều ngang khi người dùng click vào thẻ.
