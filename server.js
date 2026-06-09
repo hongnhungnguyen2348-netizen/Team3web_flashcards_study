@@ -29,10 +29,10 @@ app.use(express.static('public'));
 
 // === Route mặc định ===
 app.get('/', (req, res) => {
-  res.redirect('/admin');
+  res.sendFile(__dirname + '/index.html');
 });
 
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
-});
+});

@@ -4,7 +4,7 @@ const mysql = require('mysql2');
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',        // thay bằng user MySQL của bạn
-  password: '',        // thay bằng password MySQL của bạn
+  password: '123456',        // thay bằng password MySQL của bạn
   database: 'web_login_db',
   waitForConnections: true,
   connectionLimit: 10,
@@ -28,7 +28,7 @@ async function initDatabase() {
       )
     `);
     console.log('✅ Bảng comments đã sẵn sàng');
-    
+
     // Tạo bảng contents (flashcard)
     await db.execute(`
       CREATE TABLE IF NOT EXISTS contents (
@@ -40,7 +40,7 @@ async function initDatabase() {
       )
     `);
     console.log('✅ Bảng contents đã sẵn sàng');
-    
+
     // Thêm dữ liệu mẫu cho contents (nếu chưa có)
     const [rows] = await db.execute('SELECT COUNT(*) as count FROM contents');
     if (rows[0].count === 0) {
@@ -52,7 +52,7 @@ async function initDatabase() {
       `);
       console.log('✅ Đã thêm dữ liệu mẫu vào contents');
     }
-    
+
     // Thêm dữ liệu mẫu cho comments (nếu chưa có)
     const [commentRows] = await db.execute('SELECT COUNT(*) as count FROM comments');
     if (commentRows[0].count === 0) {
@@ -64,7 +64,7 @@ async function initDatabase() {
       `);
       console.log('✅ Đã thêm dữ liệu mẫu vào comments');
     }
-    
+
   } catch (err) {
     console.error('❌ Lỗi database:', err.message);
   }

@@ -4,7 +4,7 @@
   <title>Sửa nội dung</title>
 </head>
 <body>
-  <%- include('../partials/header') %>
+  <!-- Header -->
   
   <main>
     <h1>Sửa flashcard/bài viết</h1>
@@ -24,7 +24,7 @@
         body: document.querySelector('textarea[name="body"]').value
       };
       
-      const contentId = '<%= content._id %>';
+      const contentId = '<%= content.id %>';
       const response = await fetch(`/admin/edit/${contentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

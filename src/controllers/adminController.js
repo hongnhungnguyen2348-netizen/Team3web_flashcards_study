@@ -1,4 +1,4 @@
-const db = require('./5.config/database');
+const db = require('../config/database');
 // Trang admin dashboard
 exports.getAdminDashboard = async (req, res) => {
   try {

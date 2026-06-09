@@ -44,7 +44,7 @@
           </thead>
           <tbody id="commentList">
             <% comments.forEach(comment => { %>
-              <tr data-id="<%= comment._id %>">
+              <tr data-id="<%= comment.id %>">
                 <td><%= comment.username %></td>
                 <td class="comment-content"><%= comment.content %></td>
                 <td> <%= '★'.repeat(comment.rating) %><%= '☆'.repeat(5-comment.rating) %></td>

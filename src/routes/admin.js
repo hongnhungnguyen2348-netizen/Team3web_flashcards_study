@@ -2,11 +2,20 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 
-// Bỏ qua middleware kiểm tra (member khác lo login)
+// Trang admin chính
+router.get('/', adminController.getAdminDashboard);
+
+// Xóa comment
+router.delete('/comment/:id', adminController.deleteComment);
+
+// Sửa nội dung
+router.get('/edit/:id', adminController.getEditContent);
+router.put('/edit/:id', adminController.updateContent);
+
 // Danh sách flashcard để chọn sửa
 router.get('/edit-list', async (req, res) => {
   try {
-    const db = require('../database');
+    const db = require('../config/database');
     const [flashcards] = await db.execute('SELECT * FROM contents ORDER BY createdAt DESC');
     
     res.send(`
