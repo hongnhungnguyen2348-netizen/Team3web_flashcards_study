@@ -55,10 +55,10 @@ async function signin(req, res) {
         const user = rows[0];
 
         const match = await bcrypt.compare(password, user.password);
-        if (!match) {        
+        if (!match) {
             return res.status(401).json({ ok: false, msg: 'Sai mật khẩu' });
         }
-         req.session.user = { id: user.id, username: user.username, role: user.role };
+        req.session.user = { id: user.id, username: user.username, role: user.role };
 
         res.json({
             ok: true,
