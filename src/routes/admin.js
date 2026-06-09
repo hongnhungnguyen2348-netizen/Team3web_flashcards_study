@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('../9.controllers/adminController');
+const adminController = require('../controllers/adminController');
 
 // Bỏ qua middleware kiểm tra (member khác lo login)
 // Danh sách flashcard để chọn sửa

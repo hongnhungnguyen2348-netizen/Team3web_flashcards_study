@@ -1,5 +1,5 @@
 // 9.controllers/authController.js
-const pool = require('../5.config/db.js');
+const pool = require('../config/db.js');
 const bcrypt = require('bcrypt');
 // POST /api/auth/signup
 async function signup(req, res) {
