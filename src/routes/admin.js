@@ -15,7 +15,7 @@ router.put('/edit/:id', isAdmin, adminController.updateContent);
 
 
 // Danh sách flashcard để chọn sửa
-router.get('/edit-list', async (req, res) => {
+router.get('/edit-list', isAdmin, async (req, res) => {
   try {
     const db = require('../config/database');
     const [flashcards] = await db.execute('SELECT * FROM contents ORDER BY createdAt DESC');

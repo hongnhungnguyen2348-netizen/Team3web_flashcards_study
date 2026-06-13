@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
+// Model comment đã được chuyển sang dùng MySQL trực tiếp trong commentController.js
+// File này giữ lại để tham khảo cấu trúc bảng comments trong MySQL:
+//
+// CREATE TABLE comments (
+//   id          INT AUTO_INCREMENT PRIMARY KEY,
+//   contentId   VARCHAR(100) NOT NULL,
+//   username    VARCHAR(50)  NOT NULL,
+//   content     TEXT         NOT NULL,
+//   rating      INT          DEFAULT 5,
+//   createdAt   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+// );
 
-const commentSchema = new mongoose.Schema({
-  contentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Content', required: true },
-  username: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  content: { type: String, required: true },
-  rating: { type: Number, min: 1, max: 5, default: 5 },
-  createdAt: { type: Date, default: Date.now }
-});
-
-module.exports = mongoose.model('Comment', commentSchema);
+module.exports = {}; 

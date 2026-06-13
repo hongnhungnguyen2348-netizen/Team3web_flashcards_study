@@ -409,3 +409,30 @@ createModal.addEventListener("click", (event) => {
         hideCreateModal();
     }
 });
+
+// Tải thông tin tài khoản thực từ session server
+async function loadUserInfo() {
+    try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+
+        const avatar = document.getElementById('accountAvatar');
+        const usernameEl = document.getElementById('accountUsername');
+        const emailEl = document.getElementById('accountEmail');
+
+        if (data.ok && data.user) {
+            usernameEl.textContent = data.user.username;
+            emailEl.textContent = data.user.email || '(Chưa có email)';
+            // Hiển thị chữ cái đầu của username làm avatar
+            avatar.textContent = data.user.username.charAt(0).toUpperCase();
+        } else {
+            usernameEl.textContent = 'Chưa đăng nhập';
+            emailEl.textContent = '';
+            avatar.textContent = '?';
+        }
+    } catch (err) {
+        console.error('Không lấy được thông tin user:', err);
+    }
+}
+
+loadUserInfo();

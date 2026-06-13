@@ -1,27 +1,47 @@
-const Comment = require('../models/comment');
+const pool = require('../config/database');
 
+// POST /api/comments — Thêm bình luận mới
 exports.addComment = async (req, res) => {
   try {
     const { contentId, content, rating } = req.body;
-    const comment = new Comment({
-      contentId,
-      username: req.session.user.username,
-      userId: req.session.user._id,
-      content,
-      rating: parseInt(rating)
-    });
-    await comment.save();
-    res.json({ success: true, comment });
+
+    // Lấy username từ session (middleware isAuthenticated đã đảm bảo đã đăng nhập)
+    const username = req.session.user.username;
+
+    if (!contentId || !content) {
+      return res.status(400).json({ success: false, error: 'Thiếu thông tin bình luận' });
+    }
+
+    const safeRating = Math.min(5, Math.max(1, parseInt(rating) || 5));
+
+    const [result] = await pool.query(
+      'INSERT INTO comments (contentId, username, content, rating) VALUES (?, ?, ?, ?)',
+      [contentId, username, content, safeRating]
+    );
+
+    // Trả về comment vừa tạo
+    const [rows] = await pool.query(
+      'SELECT * FROM comments WHERE id = ?',
+      [result.insertId]
+    );
+
+    res.json({ success: true, comment: rows[0] });
   } catch (err) {
-    res.json({ success: false, error: err.message });
+    console.error('addComment error:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
+// GET /api/comments/:contentId — Lấy danh sách bình luận theo nội dung
 exports.getCommentsByContent = async (req, res) => {
   try {
-    const comments = await Comment.find({ contentId: req.params.contentId }).sort({ createdAt: -1 });
-    res.json(comments);
+    const [rows] = await pool.query(
+      'SELECT * FROM comments WHERE contentId = ? ORDER BY createdAt DESC',
+      [req.params.contentId]
+    );
+    res.json(rows);
   } catch (err) {
+    console.error('getCommentsByContent error:', err);
     res.status(500).json({ error: err.message });
   }
 };
