@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const { isAdmin } = require('../middleware/auth');
 
 // Trang admin chính
-router.get('/', adminController.getAdminDashboard);
+router.get('/', isAdmin, adminController.getAdminDashboard);
 
 // Xóa comment
-router.delete('/comment/:id', adminController.deleteComment);
+router.delete('/comment/:id', isAdmin, adminController.deleteComment);
 
 // Sửa nội dung
-router.get('/edit/:id', adminController.getEditContent);
-router.put('/edit/:id', adminController.updateContent);
+router.get('/edit/:id', isAdmin, adminController.getEditContent);
+router.put('/edit/:id', isAdmin, adminController.updateContent);
+
 
 // Danh sách flashcard để chọn sửa
 router.get('/edit-list', async (req, res) => {
