@@ -66,5 +66,44 @@
     </section>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script>
+// Gửi đánh giá từ contact form
+const contactForm = document.querySelector('.contactForm form');
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Lấy dữ liệu từ form
+        const inputs = this.querySelectorAll('.inputBox input, .inputBox textarea');
+        const fullName = inputs[0]?.value || '';
+        const email = inputs[1]?.value || '';
+        const message = inputs[2]?.value || '';
+        
+        if (!fullName || !email || !message) {
+            alert('Vui lòng điền đầy đủ thông tin!');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/comments/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, email, message, rating: 5 })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ ' + result.message);
+                this.reset();
+            } else {
+                alert('❌ ' + (result.message || result.error));
+            }
+        } catch (err) {
+            alert('❌ Lỗi kết nối: ' + err.message);
+        }
+    });
+}
+</script>
 </body>
 </html>
