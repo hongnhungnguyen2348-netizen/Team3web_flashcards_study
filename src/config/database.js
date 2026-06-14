@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
+const bcrypt = require('bcrypt');
 
 // Kết nối MySQL
 const pool = mysql.createPool({
   host: 'localhost',
-  user: 'root',        // thay bằng user MySQL của bạn
-  password: '123456',        // thay bằng password MySQL của bạn
+  user: 'root',
+  password: '123456',
   database: 'web_login_db',
   waitForConnections: true,
   connectionLimit: 10,
@@ -16,6 +17,30 @@ const db = pool.promise();
 // Tạo bảng comments nếu chưa có
 async function initDatabase() {
   try {
+    // Tạo bảng users
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        role ENUM('admin','user') DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Bảng users đã sẵn sàng');
+
+    // Thêm tài khoản admin mặc định nếu chưa có
+    const [adminRows] = await db.execute("SELECT id FROM users WHERE username = 'admin'");
+    if (adminRows.length === 0) {
+      const hashedPassword = await bcrypt.hash('123456', 10);
+      await db.execute(
+        "INSERT INTO users (username, email, password, role) VALUES ('admin', 'admin@test.com', ?, 'admin')",
+        [hashedPassword]
+      );
+      console.log('✅ Đã tạo tài khoản admin mặc định');
+    }
+
     // Tạo bảng comments
     await db.execute(`
       CREATE TABLE IF NOT EXISTS comments (
