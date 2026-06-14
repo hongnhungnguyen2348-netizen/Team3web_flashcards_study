@@ -1,4 +1,6 @@
 const db = require('../config/database');
+const { getHomepageViews } = require('../middleware/viewCounter'); // THÊM DÒNG NÀY
+
 // Trang admin dashboard
 exports.getAdminDashboard = async (req, res) => {
   try {
@@ -15,8 +17,8 @@ exports.getAdminDashboard = async (req, res) => {
       SELECT * FROM comments ORDER BY createdAt DESC LIMIT 20
     `);
     
-    // Số lượt xem giả (có thể thay bằng biến đếm sau)
-    const totalViews = Math.floor(Math.random() * 10000) + 1000;
+    // Lấy số lượt xem homepage từ database (SỬA DÒNG NÀY)
+    const totalViews = await getHomepageViews();
     
     res.render('admin/index', {
       totalViews: totalViews,

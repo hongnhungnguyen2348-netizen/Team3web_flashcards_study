@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const { trackHomepageView } = require('./src/middleware/viewCounter');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -14,15 +15,19 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.use(trackHomepageView);
+
 // === QUAN TRỌNG: Import routes TRƯỚC ===
 const adminRoutes = require('./src/routes/admin');
 const commentRoutes = require('./src/routes/comment');
 const authRoutes = require('./src/routes/authRoutes');
+const viewRoutes = require('./src/routes/viewRoutes'); // THÊM DÒNG NÀY
 
 // === Dùng routes ===
 app.use('/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/views', viewRoutes); // THÊM DÒNG NÀY
 
 // === Static file để ở SAU CÙNG ===
 app.use(express.static('public'));
