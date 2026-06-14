@@ -39,5 +39,39 @@
                 <a href="pages/login.html" class="start-btn">Start Flashcard</a>
             </div>
         </section>
+    <script>
+// Đếm thời gian ở lại trang
+let startTime = Date.now();
+let hasRecorded = false;
+
+// Hàm ghi nhận lượt xem sau 2 phút (120000 ms)
+setTimeout(() => {
+    if (!hasRecorded) {
+        // Gửi request lên server để ghi nhận lượt xem
+        fetch('/api/views/track-homepage-view', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('✅ Đã ghi nhận lượt xem (ở lại 2 phút)');
+                hasRecorded = true;
+            }
+        })
+        .catch(err => console.error('Lỗi ghi nhận lượt xem:', err));
+    }
+}, 120000); // 2 phút = 120000 milliseconds
+
+// Nếu người dùng rời trang trước "2 phút thì không ghi nhận
+window.addEventListener('beforeunload', () => {
+    const timeSpent = Date.now() - startTime;
+    if (timeSpent < 120000 && !hasRecorded) {
+        console.log("Người dùng rời trang sau ${Math.round(timeSpent/1000)} giây, không tính lượt xem");
+    }
+});
+</script>
 </body>
 </html>
