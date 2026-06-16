@@ -1,24 +1,26 @@
 const db = require('../config/database');
-const { getHomepageViews } = require('../middleware/viewCounter'); // THÊM DÒNG NÀY
+const { getHomepageViews } = require('../middleware/viewCounter'); // Dòng này phải đúng
+
+console.log('getHomepageViews trong adminController:', typeof getHomepageViews); // Thêm dòng debug
 
 // Trang admin dashboard
 exports.getAdminDashboard = async (req, res) => {
   try {
-    // Lấy tổng số bình luận
+    console.log('Đang chạy getAdminDashboard...'); // Debug
+    
     const [commentRows] = await db.execute('SELECT COUNT(*) as count FROM comments');
     const totalComments = commentRows[0].count;
     
-    // Lấy tổng số flashcard
     const [contentRows] = await db.execute('SELECT COUNT(*) as count FROM contents');
     const totalFlashcards = contentRows[0].count;
     
-    // Lấy danh sách bình luận gần nhất
     const [comments] = await db.execute(`
       SELECT * FROM comments ORDER BY createdAt DESC LIMIT 20
     `);
     
-    // Lấy số lượt xem homepage từ database (SỬA DÒNG NÀY)
+    console.log('Đang gọi getHomepageViews...'); // Debug
     const totalViews = await getHomepageViews();
+    console.log('totalViews:', totalViews); // Debug
     
     res.render('admin/index', {
       totalViews: totalViews,
@@ -27,10 +29,12 @@ exports.getAdminDashboard = async (req, res) => {
       comments: comments
     });
   } catch (err) {
-    console.error(err);
+    console.error('LỖI trong getAdminDashboard:', err);
     res.status(500).send('Lỗi server: ' + err.message);
   }
 };
+
+// ... các hàm khác giữ nguyên
 
 // Xóa comment
 exports.deleteComment = async (req, res) => {
