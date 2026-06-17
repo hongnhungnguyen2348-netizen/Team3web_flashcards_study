@@ -1,6 +1,6 @@
-// 9.controllers/authController.js
-const pool = require('../config/database');
+const db = require('../config/database'); // SỬA: dùng db thay vì pool
 const bcrypt = require('bcrypt');
+
 // POST /api/auth/signup
 async function signup(req, res) {
     try {
@@ -14,16 +14,17 @@ async function signup(req, res) {
         }
 
         // Kiểm tra trùng username hoặc email
-        const [existing] = await pool.query(
+        const [existing] = await db.execute(
             'SELECT id FROM users WHERE username = ? OR email = ?',
             [username, email]
         );
         if (existing.length > 0) {
             return res.status(409).json({ ok: false, msg: 'Username hoặc email đã tồn tại' });
         }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const [result] = await pool.query(
+        const [result] = await db.execute(
             'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
             [username, email, hashedPassword]
         );
@@ -44,32 +45,53 @@ async function signin(req, res) {
             return res.status(400).json({ ok: false, msg: 'Thiếu username hoặc password' });
         }
 
-        const [rows] = await pool.query(
-            'SELECT id, username, email, password, role FROM users WHERE username = ?',
+        // Lấy thông tin user bao gồm is_locked
+        const [rows] = await db.execute(
+            'SELECT id, username, email, password, role, is_locked FROM users WHERE username = ?',
             [username]
         );
+        
         if (rows.length === 0) {
             return res.status(401).json({ ok: false, msg: 'Tài khoản không tồn tại' });
         }
 
         const user = rows[0];
 
+        // KIỂM TRA TÀI KHOẢN BỊ KHÓA
+        if (user.is_locked === 1) {
+            return res.status(403).json({ 
+                ok: false, 
+                msg: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' 
+            });
+        }
+
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
             return res.status(401).json({ ok: false, msg: 'Sai mật khẩu' });
         }
-        req.session.user = { id: user.id, username: user.username, role: user.role };
+
+        req.session.user = { 
+            id: user.id, 
+            username: user.username, 
+            role: user.role 
+        };
 
         res.json({
             ok: true,
             msg: 'Đăng nhập thành công',
-            user: { id: user.id, username: user.username, email: user.email, role: user.role }
+            user: { 
+                id: user.id, 
+                username: user.username, 
+                email: user.email, 
+                role: user.role 
+            }
         });
     } catch (err) {
         console.error(err);
         res.status(500).json({ ok: false, msg: 'Lỗi server' });
     }
 }
+
 function me(req, res) {
     if (req.session.user) {
         res.json({ ok: true, user: req.session.user });
@@ -77,7 +99,7 @@ function me(req, res) {
         res.json({ ok: false, msg: 'Chưa đăng nhập' });
     }
 }
-// POST /api/auth/signout — đăng xuất, hủy session
+
 function signout(req, res) {
     req.session.destroy((err) => {
         if (err) {
@@ -86,4 +108,5 @@ function signout(req, res) {
         res.json({ ok: true, msg: 'Đăng xuất thành công' });
     });
 }
+
 module.exports = { signup, signin, me, signout };
