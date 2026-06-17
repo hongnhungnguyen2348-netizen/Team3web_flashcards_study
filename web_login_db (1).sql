@@ -26,8 +26,8 @@ CREATE TABLE `comments` (
   `id` int NOT NULL AUTO_INCREMENT,
   `contentId` varchar(100) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `content` text NOT NULL,
   `email` VARCHAR(255) NULL,
+  `content` TEXT NOT NULL,
   `rating` int DEFAULT '5',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -40,7 +40,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (1,'1','thuong','Flashcard rất hay!','thuong@gmail.com',5,'2026-06-09 01:42:19'),(2,'1','duc','Cần thêm ví dụ','duc@gmail.com',4,'2026-06-09 01:42:19'),(3,'2','thao','Giao diện đẹp!','thao@gmail.com',5,'2026-06-09 01:42:19');
+INSERT INTO `comments` VALUES (1,'1','thuong','thuong@gmail.com','Flashcard rất hay!',5,'2026-06-09 01:42:19'),(2,'1','duc','duc@gmail.com','Cần thêm ví dụ',4,'2026-06-09 01:42:19'),(3,'2','thao','thao@gmail.com','Giao diện đẹp!',5,'2026-06-09 01:42:19');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 

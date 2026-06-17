@@ -50,6 +50,7 @@ exports.getCommentsByContent = async (req, res) => {
 exports.addContactComment = async (req, res) => {
   try {
     const { fullName, email, message, rating } = req.body;
+
     
     // Validate dữ liệu
     if (!fullName || !email || !message) {
@@ -62,7 +63,7 @@ exports.addContactComment = async (req, res) => {
     // Lưu vào bảng comments
     await pool.query(
       `INSERT INTO comments (contentId, username, email, content, rating) 
-       VALUES (?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?)`,
       ['contact', fullName, email, message, rating || 5]
     );
     

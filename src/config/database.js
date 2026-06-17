@@ -48,6 +48,7 @@ async function initDatabase() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         contentId VARCHAR(100) NOT NULL,
         username VARCHAR(50) NOT NULL,
+        email VARCHAR(255) NULL,
         content TEXT NOT NULL,
         rating INT DEFAULT 5,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -83,10 +84,11 @@ async function initDatabase() {
     const [commentRows] = await db.execute('SELECT COUNT(*) as count FROM comments');
     if (commentRows[0].count === 0) {
       await db.execute(`
-        INSERT INTO comments (contentId, username, content, rating) VALUES 
-        ('1', 'user1', 'Flashcard rất hay!', 5),
-        ('1', 'user2', 'Cần thêm ví dụ', 4),
-        ('2', 'user3', 'Giao diện đẹp!', 5)
+        INSERT INTO comments (contentId, username, email, content, rating) VALUES 
+        ('1', 'thuong', 'thuong@gmail.com', 'Flashcard rất hay!', 5),
+        ('1', 'duc', 'duc@gmail.com', 'Cần thêm ví dụ', 4),
+        ('2', 'thao', 'thao@gmail.com', 'Giao diện đẹp!', 5)
+
       `);
       console.log('✅ Đã thêm dữ liệu mẫu vào comments');
     }
