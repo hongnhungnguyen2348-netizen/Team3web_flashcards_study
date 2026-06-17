@@ -14,17 +14,5 @@ router.get('/users', isAdmin, (req, res) => {
   res.render('admin/users');
 });
 
-// Giữ lại route cũ (có thể redirect hoặc bỏ)
-router.get('/edit-list', isAdmin, (req, res) => {
-  res.redirect('/admin/users');
-});
-
-router.get('/edit/:id', isAdmin, (req, res) => {
-  res.redirect('/admin/users');
-});
-
-router.put('/edit/:id', isAdmin, (req, res) => {
-  res.redirect('/admin/users');
-});
 
 module.exports = router;

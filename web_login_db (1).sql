@@ -139,6 +139,7 @@ CREATE TABLE `view_logs` (
   `page_url` varchar(255) NOT NULL,
   `visitor_ip` varchar(45) DEFAULT NULL,
   `visited_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id` INT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
