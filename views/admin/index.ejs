@@ -18,16 +18,15 @@
     <!-- 3 thống kê chính -->
     <div class="stats-grid">
   <div class="stat-card">
-    <h3>🏠 LƯỢT XEM HOMEPAGE</h3>
+    <h3> LƯỢT XEM HOMEPAGE</h3>
     <div class="stat-number"><%= totalViews %></div>
-    <small style="color: #888;">Tổng số lượt truy cập trang chủ</small>
   </div>
   <div class="stat-card">
-    <h3>💬 TỔNG BÌNH LUẬN</h3>
+    <h3> TỔNG BÌNH LUẬN</h3>
     <div class="stat-number"><%= totalComments %></div>
   </div>
   <div class="stat-card">
-    <h3>📚 FLASHCARD</h3>
+    <h3> FLASHCARD</h3>
     <div class="stat-number"><%= totalFlashcards %></div>
   </div>
 </div>
@@ -45,27 +44,19 @@
           </thead>
           <tbody id="commentList">
             <% comments.forEach(comment => { 
-          // Định nghĩa biến trong scope này
-          let email = '';
-          let content = comment.content;
-          
-          // Nếu là comment từ contact, tách email ra
-          if (comment.contentId === 'contact' && comment.content && comment.content.includes('📧')) {
-            const parts = comment.content.split('\n');
-            if (parts[0] && parts[0].includes('📧')) {
-              email = parts[0].replace('📧 ', '');
-              content = parts.slice(1).join('\n') || comment.content;
-            }
-          }
-        %>
-          <tr data-id="<%= comment.id %>">
-            <td><%= comment.username %></td>
-            <td style="word-break: break-all;"><%= email || '---' %></td>
-            <td class="comment-content"><%= content %></td>
-            <td><%= new Date(comment.createdAt).toLocaleDateString('vi-VN') %></td>
-            <td><button class="btn-delete delete-comment">Xóa</button></td>
-          </tr>
-        <% }) %>
+              // Không cần tách email từ content nữa
+              // Lấy trực tiếp từ cột email
+              const email = comment.email || '---';
+              const content = comment.content;
+            %>
+              <tr data-id="<%= comment.id %>">
+                <td><%= comment.username %></td>
+                <td style="word-break: break-all;"><%= email %></td>
+                <td class="comment-content"><%= content %></td>
+                <td><%= new Date(comment.createdAt).toLocaleDateString('vi-VN') %></td>
+                <td><button class="btn-delete delete-comment">Xóa</button></td>
+              </tr>
+            <% }) %>
           </tbody>
         </table>
       <% } %>
@@ -74,7 +65,7 @@
     <!-- Gợi ý nhanh -->
     <!-- Gợi ý nhanh -->
     <div style="background: white; border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid #eee;">
-      <a href="/admin/users" style="color: #1a1a1a; margin-left: 0.5rem;">👥 Quản lý người dùng →</a>
+      <a href="/admin/users" style="color: #1a1a1a; margin-left: 0.5rem;"> Quản lý người dùng →</a>
     </div>
   </main>
 

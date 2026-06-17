@@ -45,3 +45,36 @@ exports.getCommentsByContent = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// THÊM controller mới cho contact form (KHÔNG cần đăng nhập)
+exports.addContactComment = async (req, res) => {
+  try {
+    const { fullName, email, message, rating } = req.body;
+    
+    // Validate dữ liệu
+    if (!fullName || !email || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Vui lòng điền đầy đủ thông tin' 
+      });
+    }
+    
+    // Lưu vào bảng comments
+    await pool.query(
+      `INSERT INTO comments (contentId, username, email, content, rating) 
+       VALUES (?, ?, ?, ?)`,
+      ['contact', fullName, email, message, rating || 5]
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Cảm ơn bạn đã đánh giá!' 
+    });
+  } catch (err) {
+    console.error('Lỗi lưu đánh giá:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
+  }
+};
