@@ -1,6 +1,6 @@
 const db = require('../config/database');
 
-// Middleware đếm lượt xem - KHÔNG đếm ở đây nữa, chỉ track thời gian
+// Middleware đếm lượt xem - KHÔNG đếm ở đây, chỉ để check cookie
 async function trackHomepageView(req, res, next) {
     // Middleware này chỉ để đánh dấu, không đếm gì cả
     // Việc đếm sẽ được thực hiện qua API sau 2 phút
@@ -12,8 +12,22 @@ async function recordHomepageView(req, res) {
     try {
         const today = new Date().toISOString().split('T')[0];
         
-        // Lấy IP của người dùng
-        const visitorIp = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+        // Lấy cookie ID (nếu chưa có thì tạo mới)
+        let visitorId = req.cookies.visitorId;
+        if (!visitorId) {
+            // Tạo ID ngẫu nhiên cho visitor
+            visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Kiểm tra cookie đã xem trong ngày chưa
+        const cookieKey = `viewed_${today}`;
+        if (req.cookies[cookieKey]) {
+            console.log(`⏭️ Bỏ qua: Cookie ${cookieKey} đã tồn tại - User đã xem trong ngày hôm nay`);
+            return res.json({ 
+                success: true, 
+                message: 'Đã đếm lượt xem trong ngày hôm nay rồi' 
+            });
+        }
         
         // Lấy thông tin user nếu đã đăng nhập
         let userId = null;
@@ -21,40 +35,8 @@ async function recordHomepageView(req, res) {
             userId = req.session.user.id;
         }
         
-        // Kiểm tra IP này đã xem trang chủ trong ngày chưa
-        let query = `
-            SELECT id FROM view_logs 
-            WHERE page_url = '/' 
-            AND visitor_ip = ? 
-            AND DATE(visited_at) = ?
-        `;
-        let params = [visitorIp, today];
-        
-        // Nếu có user ID, kiểm tra thêm điều kiện user_id (để đếm theo user)
-        if (userId) {
-            query = `
-                SELECT id FROM view_logs 
-                WHERE page_url = '/' 
-                AND visitor_ip = ? 
-                AND DATE(visited_at) = ?
-                AND (user_id = ? OR user_id IS NULL)
-            `;
-            params = [visitorIp, today, userId];
-        }
-        
-        const [existing] = await db.execute(query, params);
-        
-        // Nếu đã xem trong ngày rồi → bỏ qua
-        if (existing.length > 0) {
-            console.log(`⏭️ Bỏ qua: IP ${visitorIp} đã xem trang chủ trong ngày hôm nay`);
-            return res.json({ 
-                success: true, 
-                message: 'Đã đếm lượt xem trong ngày hôm nay rồi' 
-            });
-        }
-        
         // Chưa xem → đếm
-        // 1. Cập nhật bảng page_views (thống kê tổng theo ngày)
+        // 1. Cập nhật bảng page_views
         await db.execute(
             `INSERT INTO page_views (page_url, view_date, view_count) 
              VALUES ('/', ?, 1) 
@@ -62,22 +44,40 @@ async function recordHomepageView(req, res) {
             [today]
         );
         
-        // 2. Ghi log chi tiết (lưu cả user_id nếu có)
+        // 2. Ghi log chi tiết
         if (userId) {
             await db.execute(
-                `INSERT INTO view_logs (page_url, visitor_ip, user_id, visited_at) 
+                `INSERT INTO view_logs (page_url, visitor_id, user_id, visited_at) 
                  VALUES ('/', ?, ?, NOW())`,
-                [visitorIp, userId]
+                [visitorId, userId]
             );
         } else {
             await db.execute(
-                `INSERT INTO view_logs (page_url, visitor_ip, visited_at) 
+                `INSERT INTO view_logs (page_url, visitor_id, visited_at) 
                  VALUES ('/', ?, NOW())`,
-                [visitorIp]
+                [visitorId]
             );
         }
         
-        console.log(`✅ Đã ghi nhận lượt xem homepage (sau 2 phút) - IP: ${visitorIp} - User: ${userId || 'chưa đăng nhập'} - Ngày: ${today}`);
+        // 3. Set cookie để không đếm lại trong ngày
+        res.cookie(cookieKey, 'true', {
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
+        
+        // 4. Set cookie visitorId (nếu chưa có)
+        if (!req.cookies.visitorId) {
+            res.cookie('visitorId', visitorId, {
+                maxAge: 365 * 24 * 60 * 60 * 1000, // 1 năm
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
+            });
+        }
+        
+        console.log(`✅ Đã ghi nhận lượt xem homepage (sau 2 phút) - Visitor: ${visitorId} - User: ${userId || 'chưa đăng nhập'} - Ngày: ${today}`);
         res.json({ success: true });
     } catch (err) {
         console.error('❌ Lỗi ghi nhận lượt xem:', err.message);

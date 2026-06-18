@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const cookieParser = require('cookie-parser'); // THÊM DÒNG NÀY
 const { trackHomepageView } = require('./src/middleware/viewCounter');
 const app = express();
 
@@ -8,6 +9,8 @@ app.set('views', './views');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 app.use(session({
   secret: 'autosecretkey',

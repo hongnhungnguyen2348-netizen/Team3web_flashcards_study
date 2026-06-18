@@ -138,7 +138,7 @@ DROP TABLE IF EXISTS `view_logs`;
 CREATE TABLE `view_logs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `page_url` varchar(255) NOT NULL,
-  `visitor_ip` varchar(45) DEFAULT NULL,
+  `visitor_id` varchar(100) DEFAULT NULL,
   `visited_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `user_id` INT NULL,
   PRIMARY KEY (`id`)
