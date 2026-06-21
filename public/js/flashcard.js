@@ -1,6 +1,4 @@
-// Trang học đọc dữ liệu từ localStorage do trang thư viện đã lưu.
-const STORAGE_KEY = "flashstudy_collections";
-const SELECTED_KEY = "flashstudy_selected_collection";
+// Trang học lấy dữ liệu bộ flashcard từ API backend (/api/flashcards/:id), không còn dùng localStorage.
 
 const backButton = document.getElementById("backButton");
 const progressText = document.getElementById("progressText");
@@ -13,18 +11,32 @@ const nextButton = document.getElementById("nextButton");
 const rememberedButton = document.getElementById("rememberedButton");
 const forgotButton = document.getElementById("forgotButton");
 
-const collections = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-const selectedCollectionId = localStorage.getItem(SELECTED_KEY);
-const activeCollection = collections.find((collection) => collection.id === selectedCollectionId);
-const cards = activeCollection?.cards || [];
+const selectedCollectionId = new URLSearchParams(window.location.search).get("id");
 
+let activeCollection = null;
+let cards = [];
 let currentIndex = 0;
-const studyStatus = new Array(cards.length).fill("");
+let studyStatus = [];
 
 initializeStudyPage();
 
-// Khởi tạo nội dung ban đầu của trang học.
-function initializeStudyPage() {
+// Lấy bộ flashcard đang chọn từ server rồi khởi tạo nội dung ban đầu của trang học.
+async function initializeStudyPage() {
+    if (selectedCollectionId) {
+        try {
+            const res = await fetch(`/api/flashcards/${selectedCollectionId}`);
+            const data = await res.json();
+            if (data.success) {
+                activeCollection = data.collection;
+            }
+        } catch (err) {
+            console.error("Không tải được bộ flashcard:", err);
+        }
+    }
+
+    cards = activeCollection?.cards || [];
+    studyStatus = new Array(cards.length).fill("");
+
     if (!activeCollection || cards.length === 0) {
         collectionTitle.textContent = "Chưa có flashcard để học";
         frontContent.textContent = "Về thư viện";

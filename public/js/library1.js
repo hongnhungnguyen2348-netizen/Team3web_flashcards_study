@@ -1,6 +1,4 @@
-// Khóa lưu trữ dùng chung giữa trang thư viện và trang học flashcard.
-const STORAGE_KEY = "flashstudy_collections";
-const SELECTED_KEY = "flashstudy_selected_collection";
+// Trang thư viện lấy/lưu bộ flashcard qua API backend (/api/flashcards), không còn dùng localStorage.
 
 // Lấy các phần tử DOM cần dùng cho điều hướng, modal và thao tác bộ sưu tập.
 const pageButtons = document.querySelectorAll("[data-page]");
@@ -31,12 +29,19 @@ const editCollectionButton = document.getElementById("editCollectionButton");
 const deleteCollectionButton = document.getElementById("deleteCollectionButton");
 const studyFlashcardButton = document.getElementById("studyFlashcardButton");
 
-let collections = loadCollections();
-let selectedCollectionId = collections[0]?.id || "";
-let currentEditingId = "";
+let collections = [];
+let selectedCollectionId = null;
+let currentEditingId = null;
 let editingCardIndex = -1;
+let editingCardId = null;
 
-renderCollections();
+init();
+
+async function init() {
+    collections = await loadCollections();
+    selectedCollectionId = collections[0]?.id ?? null;
+    renderCollections();
+}
 
 // Chuyển đổi giao diện chính mà không cần tải lại trang.
 function showPage(pageName) {
@@ -49,52 +54,16 @@ function showPage(pageName) {
     });
 }
 
-// Nạp dữ liệu từ localStorage; nếu chưa có dữ liệu thì tạo bộ mẫu để giao diện đầy đủ.
-function loadCollections() {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-
-    if (savedData) {
-        return JSON.parse(savedData);
+// Nạp danh sách bộ flashcard của user hiện tại từ server.
+async function loadCollections() {
+    try {
+        const res = await fetch('/api/flashcards');
+        const data = await res.json();
+        return data.success ? data.collections : [];
+    } catch (err) {
+        console.error('Không tải được bộ flashcard:', err);
+        return [];
     }
-
-    const sampleCollections = [
-        {
-            id: "sample-english",
-            name: "Từ vựng tiếng Anh",
-            status: "Đang học",
-            cards: [
-                { term: "Ambition", definition: "Khát vọng hoặc mục tiêu mạnh mẽ muốn đạt được." },
-                { term: "Consistency", definition: "Sự kiên trì và đều đặn khi thực hiện một việc." },
-                { term: "Curiosity", definition: "Sự tò mò, mong muốn tìm hiểu điều mới." }
-            ]
-        },
-        {
-            id: "sample-history",
-            name: "Lịch sử Việt Nam",
-            status: "Đã nhớ",
-            cards: [
-                { term: "Chiến thắng Bạch Đằng", definition: "Trận thủy chiến quan trọng gắn với chiến thuật cọc gỗ trên sông." },
-                { term: "Cách mạng tháng Tám", definition: "Sự kiện lịch sử năm 1945 mở ra thời kỳ độc lập dân tộc." }
-            ]
-        },
-        {
-            id: "sample-math",
-            name: "Công thức Toán học",
-            status: "Đang học",
-            cards: [
-                { term: "Diện tích hình tròn", definition: "S = πr², với r là bán kính hình tròn." },
-                { term: "Định lý Pythagoras", definition: "Trong tam giác vuông: a² + b² = c²." }
-            ]
-        }
-    ];
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleCollections));
-    return sampleCollections;
-}
-
-// Lưu lại toàn bộ bộ sưu tập sau mỗi thao tác thêm/xóa để trang học đọc được dữ liệu mới nhất.
-function saveCollections() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collections));
 }
 
 // Vẽ lại danh sách bộ sưu tập trên trang chủ và giữ trạng thái đang chọn.
@@ -162,8 +131,8 @@ function hideCreateModal() {
     createModal.setAttribute("aria-hidden", "true");
 }
 
-// Tạo bộ sưu tập mới, lưu vào localStorage và chuyển sang giao diện nhập flashcard.
-function createFolder() {
+// Tạo bộ sưu tập mới qua API và chuyển sang giao diện nhập flashcard.
+async function createFolder() {
     const folderName = folderNameInput.value.trim();
 
     if (!folderName) {
@@ -171,33 +140,44 @@ function createFolder() {
         return;
     }
 
-    const newCollection = {
-        id: `collection-${Date.now()}`,
-        name: folderName,
-        status: "Đang học",
-        cards: []
-    };
+    try {
+        const res = await fetch('/api/flashcards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: folderName, status: 'Đang học' })
+        });
+        const data = await res.json();
 
-    collections.unshift(newCollection);
-    selectedCollectionId = newCollection.id;
-    currentEditingId = newCollection.id;
-    editingCardIndex = -1;
-    saveCollections();
-    renderCollections();
+        if (!data.success) {
+            modalError.textContent = data.error || "Không tạo được bộ flashcard.";
+            return;
+        }
 
-    editorModeLabel.textContent = "Bộ flashcard mới";
-    editorTitle.textContent = folderName;
-    termInput.value = "";
-    definitionInput.value = "";
-    resetCardForm();
-    renderCreatedCards();
+        const newCollection = data.collection;
+        collections.unshift(newCollection);
+        selectedCollectionId = newCollection.id;
+        currentEditingId = newCollection.id;
+        editingCardIndex = -1;
+        editingCardId = null;
+        renderCollections();
 
-    hideCreateModal();
-    showPage("editor");
+        editorModeLabel.textContent = "Bộ flashcard mới";
+        editorTitle.textContent = folderName;
+        termInput.value = "";
+        definitionInput.value = "";
+        resetCardForm();
+        renderCreatedCards();
+
+        hideCreateModal();
+        showPage("editor");
+    } catch (err) {
+        console.error('createFolder error:', err);
+        modalError.textContent = "Lỗi kết nối tới server.";
+    }
 }
 
-// Lưu flashcard mới hoặc cập nhật flashcard đang được chỉnh sửa.
-function addFlashcard() {
+// Lưu flashcard mới hoặc cập nhật flashcard đang được chỉnh sửa qua API.
+async function addFlashcard() {
     const term = termInput.value.trim();
     const definition = definitionInput.value.trim();
     const collection = collections.find((item) => item.id === currentEditingId);
@@ -212,16 +192,40 @@ function addFlashcard() {
         return;
     }
 
-    if (editingCardIndex >= 0) {
-        collection.cards[editingCardIndex] = { term, definition };
-    } else {
-        collection.cards.push({ term, definition });
-    }
+    try {
+        if (editingCardIndex >= 0 && editingCardId != null) {
+            const res = await fetch(`/api/flashcards/${collection.id}/cards/${editingCardId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ term, definition })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert(data.error || "Không cập nhật được flashcard.");
+                return;
+            }
+            collection.cards[editingCardIndex] = { ...collection.cards[editingCardIndex], term, definition };
+        } else {
+            const res = await fetch(`/api/flashcards/${collection.id}/cards`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ term, definition })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert(data.error || "Không thêm được flashcard.");
+                return;
+            }
+            collection.cards.push(data.card);
+        }
 
-    saveCollections();
-    renderCollections();
-    resetCardForm();
-    renderCreatedCards();
+        renderCollections();
+        resetCardForm();
+        renderCreatedCards();
+    } catch (err) {
+        console.error('addFlashcard error:', err);
+        alert("Lỗi kết nối tới server.");
+    }
 }
 
 // Hiển thị các thẻ đã thêm ở trang soạn thảo.
@@ -263,6 +267,7 @@ function editSelectedCollection() {
     currentEditingId = collection.id;
     selectedCollectionId = collection.id;
     editingCardIndex = -1;
+    editingCardId = null;
     editorModeLabel.textContent = "Chỉnh sửa bộ flashcard";
     editorTitle.textContent = collection.name;
     resetCardForm();
@@ -271,8 +276,8 @@ function editSelectedCollection() {
     showPage("editor");
 }
 
-// Xóa bộ sưu tập đang chọn khỏi thư viện.
-function deleteSelectedCollection() {
+// Xóa bộ sưu tập đang chọn khỏi thư viện qua API.
+async function deleteSelectedCollection() {
     const collection = getSelectedCollection();
 
     if (!collection) {
@@ -286,13 +291,25 @@ function deleteSelectedCollection() {
         return;
     }
 
-    collections = collections.filter((item) => item.id !== selectedCollectionId);
-    selectedCollectionId = collections[0]?.id || "";
-    saveCollections();
-    renderCollections();
+    try {
+        const res = await fetch(`/api/flashcards/${collection.id}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (!data.success) {
+            alert(data.error || "Không xóa được bộ sưu tập.");
+            return;
+        }
+
+        collections = collections.filter((item) => item.id !== selectedCollectionId);
+        selectedCollectionId = collections[0]?.id ?? null;
+        renderCollections();
+    } catch (err) {
+        console.error('deleteSelectedCollection error:', err);
+        alert("Lỗi kết nối tới server.");
+    }
 }
 
-// Chuyển sang trang học flashcard riêng, trang đó sẽ đọc id bộ được chọn từ localStorage.
+// Chuyển sang trang học flashcard riêng, kèm id bộ sưu tập trên URL.
 function studySelectedCollection() {
     const collection = getSelectedCollection();
 
@@ -306,8 +323,7 @@ function studySelectedCollection() {
         return;
     }
 
-    localStorage.setItem(SELECTED_KEY, collection.id);
-    window.location.href = "flashcard.html";
+    window.location.href = `flashcard.html?id=${collection.id}`;
 }
 
 // Đưa dữ liệu của thẻ cần sửa lên form nhập liệu.
@@ -319,6 +335,7 @@ function startEditCard(index) {
     }
 
     editingCardIndex = index;
+    editingCardId = collection.cards[index].id;
     termInput.value = collection.cards[index].term;
     definitionInput.value = collection.cards[index].definition;
     addCardButton.textContent = "Lưu chỉnh sửa";
@@ -327,8 +344,8 @@ function startEditCard(index) {
     termInput.focus();
 }
 
-// Xóa một flashcard khỏi bộ đang chỉnh sửa.
-function deleteCard(index) {
+// Xóa một flashcard khỏi bộ đang chỉnh sửa qua API.
+async function deleteCard(index) {
     const collection = collections.find((item) => item.id === currentEditingId);
 
     if (!collection || !collection.cards[index]) {
@@ -341,16 +358,31 @@ function deleteCard(index) {
         return;
     }
 
-    collection.cards.splice(index, 1);
-    saveCollections();
-    renderCollections();
-    resetCardForm();
-    renderCreatedCards();
+    const cardId = collection.cards[index].id;
+
+    try {
+        const res = await fetch(`/api/flashcards/${collection.id}/cards/${cardId}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (!data.success) {
+            alert(data.error || "Không xóa được flashcard.");
+            return;
+        }
+
+        collection.cards.splice(index, 1);
+        renderCollections();
+        resetCardForm();
+        renderCreatedCards();
+    } catch (err) {
+        console.error('deleteCard error:', err);
+        alert("Lỗi kết nối tới server.");
+    }
 }
 
 // Reset form về chế độ thêm thẻ mới.
 function resetCardForm() {
     editingCardIndex = -1;
+    editingCardId = null;
     termInput.value = "";
     definitionInput.value = "";
     addCardButton.textContent = "+ Thêm thẻ";
