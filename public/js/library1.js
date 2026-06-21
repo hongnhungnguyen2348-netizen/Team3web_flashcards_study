@@ -35,6 +35,17 @@ let currentEditingId = null;
 let editingCardIndex = -1;
 let editingCardId = null;
 
+const inboxButton = document.getElementById("inboxButton");
+const notificationBadge = document.getElementById("notificationBadge");
+const notificationDropdown = document.getElementById("notificationDropdown");
+const notificationList = document.getElementById("notificationList");
+const markAllReadBtn = document.getElementById("markAllRead");
+const notificationModal = document.getElementById("notificationModal");
+const closeNotificationModalButton = document.getElementById("closeNotificationModal");
+const modalNotificationTitle = document.getElementById("modalNotificationTitle");
+const modalNotificationMessage = document.getElementById("modalNotificationMessage");
+const modalNotificationTime = document.getElementById("modalNotificationTime");
+
 init();
 
 async function init() {
@@ -468,3 +479,130 @@ async function loadUserInfo() {
 }
 
 loadUserInfo();
+
+async function loadNotifications() {
+    try {
+        const res = await fetch("/api/notifications");
+        const data = await res.json();
+
+        if (data.unreadCount > 0) {
+            notificationBadge.style.display = "flex";
+            notificationBadge.textContent = data.unreadCount > 99 ? "99+" : data.unreadCount;
+        } else {
+            notificationBadge.style.display = "none";
+        }
+
+        renderNotifications(data.notifications || []);
+    } catch (err) {
+        console.error("Lỗi tải thông báo:", err);
+    }
+}
+
+function renderNotifications(notifications) {
+    if (notifications.length === 0) {
+        notificationList.innerHTML = '<p class="empty-notification">Chưa có thông báo nào</p>';
+        return;
+    }
+
+    notificationList.innerHTML = notifications.map((notif) => `
+        <div class="notification-item ${notif.is_read ? "" : "unread"}" data-id="${notif.id}">
+            <div class="notification-icon ${notif.type}">
+                ${getNotificationIcon(notif.type)}
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${escapeHtml(notif.title)}</div>
+                <div class="notification-preview">${escapeHtml(notif.message)}</div>
+                <div class="notification-time">${formatTime(notif.created_at)}</div>
+            </div>
+        </div>
+    `).join("");
+
+    document.querySelectorAll(".notification-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            openNotificationDetail(item.dataset.id);
+        });
+    });
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        info: "ℹ",
+        warning: "⚠",
+        success: "✓",
+        error: "✕"
+    };
+    return icons[type] || "ℹ";
+}
+
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+
+    if (diff < 60000) return "Vừa xong";
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
+
+    return date.toLocaleDateString("vi-VN");
+}
+
+async function openNotificationDetail(notifId) {
+    try {
+        const res = await fetch(`/api/notifications/${notifId}`);
+        const notif = await res.json();
+
+        modalNotificationTitle.textContent = notif.title;
+        modalNotificationMessage.textContent = notif.message;
+        modalNotificationTime.textContent = new Date(notif.created_at).toLocaleString("vi-VN");
+        notificationModal.classList.add("show");
+        notificationModal.setAttribute("aria-hidden", "false");
+        notificationDropdown.classList.remove("show");
+        loadNotifications();
+    } catch (err) {
+        console.error("Lỗi lấy chi tiết thông báo:", err);
+        alert("Không thể tải chi tiết thông báo");
+    }
+}
+
+function hideNotificationModal() {
+    notificationModal.classList.remove("show");
+    notificationModal.setAttribute("aria-hidden", "true");
+}
+
+async function markAllAsRead() {
+    try {
+        await fetch("/api/notifications/read-all", {
+            method: "PUT"
+        });
+        loadNotifications();
+    } catch (err) {
+        console.error("Lỗi cập nhật:", err);
+        alert("Không thể cập nhật trạng thái");
+    }
+}
+
+function toggleNotificationDropdown() {
+    notificationDropdown.classList.toggle("show");
+
+    if (notificationDropdown.classList.contains("show")) {
+        loadNotifications();
+    }
+}
+
+document.addEventListener("click", (e) => {
+    if (!inboxButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+        notificationDropdown.classList.remove("show");
+    }
+});
+
+inboxButton.addEventListener("click", toggleNotificationDropdown);
+markAllReadBtn.addEventListener("click", markAllAsRead);
+closeNotificationModalButton.addEventListener("click", hideNotificationModal);
+
+notificationModal.addEventListener("click", (e) => {
+    if (e.target === notificationModal) {
+        hideNotificationModal();
+    }
+});
+
+loadNotifications();
