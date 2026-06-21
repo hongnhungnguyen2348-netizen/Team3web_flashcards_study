@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "init-db": "node scripts/init-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,10 +22,10 @@
   "homepage": "https://github.com/hongnhungnguyen2348-netizen/Team3web_flashcards_study#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.11.1",
     "cookie-parser": "^1.4.7",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
-    "express-session": "^1.19.0",
-    "mysql2": "^3.22.5"
+    "express-session": "^1.19.0"
   }
 }

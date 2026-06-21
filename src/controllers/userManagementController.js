@@ -5,9 +5,9 @@ const bcrypt = require('bcrypt');
 exports.getUserList = async (req, res) => {
     try {
         const [users] = await db.execute(
-            `SELECT id, username, email, role, 
-             created_at 
-             FROM users 
+            `SELECT id, username, email, role, is_locked,
+             created_at
+             FROM users
              WHERE role != 'admin'
              ORDER BY created_at DESC`
         );
@@ -21,19 +21,29 @@ exports.getUserList = async (req, res) => {
 exports.toggleLockUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         // Lấy trạng thái hiện tại
-        
-        if (user.length === 0) {
+        const [userRows] = await db.execute(
+            `SELECT id, is_locked FROM users WHERE id = ?`,
+            [userId]
+        );
+
+        if (userRows.length === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
         }
-        
-        const statusText = newLockStatus ? 'khóa' : 'mở khóa';
-        
 
-        
-        res.json({ 
-            success: true, 
+        const currentLockStatus = userRows[0].is_locked ? true : false;
+        const newLockStatus = currentLockStatus ? 0 : 1;
+
+        await db.execute(
+            `UPDATE users SET is_locked = ? WHERE id = ?`,
+            [newLockStatus, userId]
+        );
+
+        const statusText = newLockStatus ? 'khóa' : 'mở khóa';
+
+        res.json({
+            success: true,
             message: `Đã ${statusText} tài khoản thành công`
         });
     } catch (err) {
@@ -45,24 +55,24 @@ exports.toggleLockUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         // Kiểm tra user có tồn tại và không phải admin
         const [user] = await db.execute(
             `SELECT id, role FROM users WHERE id = ?`,
             [userId]
         );
-        
+
         if (user.length === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
         }
-        
+
         if (user[0].role === 'admin') {
             return res.status(403).json({ success: false, message: 'Không thể xóa tài khoản admin' });
         }
-        
+
         // Xóa user (cascade sẽ xóa flashcard nếu có foreign key)
         await db.execute(`DELETE FROM users WHERE id = ?`, [userId]);
-        
+
         res.json({ success: true, message: 'Đã xóa tài khoản thành công' });
     } catch (err) {
         res.json({ success: false, error: err.message });
@@ -75,15 +85,15 @@ exports.resetUserPassword = async (req, res) => {
         const userId = req.params.id;
         const defaultPassword = '123456';
         const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-        
+
         await db.execute(
             `UPDATE users SET password = ? WHERE id = ? AND role != 'admin'`,
             [hashedPassword, userId]
         );
-        
-        res.json({ 
-            success: true, 
-            message: `Đã reset mật khẩu thành công. Mật khẩu mới: ${defaultPassword}` 
+
+        res.json({
+            success: true,
+            message: `Đã reset mật khẩu thành công. Mật khẩu mới: ${defaultPassword}`
         });
     } catch (err) {
         res.json({ success: false, error: err.message });

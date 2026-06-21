@@ -11,54 +11,67 @@ async function trackHomepageView(req, res, next) {
 async function recordHomepageView(req, res) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        
+
         // Lấy cookie ID (nếu chưa có thì tạo mới)
         let visitorId = req.cookies.visitorId;
         if (!visitorId) {
             // Tạo ID ngẫu nhiên cho visitor
             visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
-        
+
         // Kiểm tra cookie đã xem trong ngày chưa
         const cookieKey = `viewed_${today}`;
         if (req.cookies[cookieKey]) {
             console.log(`⏭️ Bỏ qua: Cookie ${cookieKey} đã tồn tại - User đã xem trong ngày hôm nay`);
-            return res.json({ 
-                success: true, 
-                message: 'Đã đếm lượt xem trong ngày hôm nay rồi' 
+            return res.json({
+                success: true,
+                message: 'Đã đếm lượt xem trong ngày hôm nay rồi'
             });
         }
-        
+
         // Lấy thông tin user nếu đã đăng nhập
         let userId = null;
         if (req.session && req.session.user) {
             userId = req.session.user.id;
         }
-        
+
         // Chưa xem → đếm
-        // 1. Cập nhật bảng page_views
-        await db.execute(
-            `INSERT INTO page_views (page_url, view_date, view_count) 
-             VALUES ('/', ?, 1) 
-             ON DUPLICATE KEY UPDATE view_count = view_count + 1`,
+        // 1. Cập nhật bảng page_views (dùng UPSERT: INSERT OR REPLACE cho SQLite)
+        // SQLite không hỗ trợ ON DUPLICATE KEY UPDATE, nên dùng INSERT OR REPLACE
+        const [existingRows] = await db.execute(
+            `SELECT id, view_count FROM page_views WHERE page_url = '/' AND view_date = ?`,
             [today]
         );
-        
-        // 2. Ghi log chi tiết
+
+        if (existingRows.length > 0) {
+            // Đã có record → tăng view_count
+            await db.execute(
+                `UPDATE page_views SET view_count = view_count + 1 WHERE id = ?`,
+                [existingRows[0].id]
+            );
+        } else {
+            // Chưa có → INSERT mới
+            await db.execute(
+                `INSERT INTO page_views (page_url, view_date, view_count) VALUES (?, ?, 1)`,
+                ['/', today]
+            );
+        }
+
+        // 2. Ghi log chi tiết (dùng datetime('now','localtime') thay cho NOW())
         if (userId) {
             await db.execute(
-                `INSERT INTO view_logs (page_url, visitor_id, user_id, visited_at) 
-                 VALUES ('/', ?, ?, NOW())`,
-                [visitorId, userId]
+                `INSERT INTO view_logs (page_url, visitor_id, user_id, visited_at)
+                 VALUES (?, ?, ?, datetime('now', 'localtime'))`,
+                ['/', visitorId, userId]
             );
         } else {
             await db.execute(
-                `INSERT INTO view_logs (page_url, visitor_id, visited_at) 
-                 VALUES ('/', ?, NOW())`,
-                [visitorId]
+                `INSERT INTO view_logs (page_url, visitor_id, visited_at)
+                 VALUES (?, ?, datetime('now', 'localtime'))`,
+                ['/', visitorId]
             );
         }
-        
+
         // 3. Set cookie để không đếm lại trong ngày
         res.cookie(cookieKey, 'true', {
             maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -66,7 +79,7 @@ async function recordHomepageView(req, res) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax'
         });
-        
+
         // 4. Set cookie visitorId (nếu chưa có)
         if (!req.cookies.visitorId) {
             res.cookie('visitorId', visitorId, {
@@ -76,7 +89,7 @@ async function recordHomepageView(req, res) {
                 sameSite: 'lax'
             });
         }
-        
+
         console.log(`✅ Đã ghi nhận lượt xem homepage (sau 2 phút) - Visitor: ${visitorId} - User: ${userId || 'chưa đăng nhập'} - Ngày: ${today}`);
         res.json({ success: true });
     } catch (err) {
@@ -102,11 +115,11 @@ async function getHomepageViews() {
 async function getViewsByDate() {
     try {
         const [rows] = await db.execute(
-            `SELECT view_date, SUM(view_count) as total 
-             FROM page_views 
+            `SELECT view_date, SUM(view_count) as total
+             FROM page_views
              WHERE page_url NOT LIKE '/admin%'
-             GROUP BY view_date 
-             ORDER BY view_date DESC 
+             GROUP BY view_date
+             ORDER BY view_date DESC
              LIMIT 30`
         );
         return rows;
@@ -120,7 +133,7 @@ async function getViewsByDate() {
 async function getTotalViews() {
     try {
         const [rows] = await db.execute(
-            `SELECT SUM(view_count) as total FROM page_views 
+            `SELECT SUM(view_count) as total FROM page_views
              WHERE page_url NOT LIKE '/admin%'`
         );
         return rows[0].total || 0;
@@ -134,10 +147,10 @@ async function getTotalViews() {
 async function getViewsByPage() {
     try {
         const [rows] = await db.execute(
-            `SELECT page_url, SUM(view_count) as total_views 
-             FROM page_views 
+            `SELECT page_url, SUM(view_count) as total_views
+             FROM page_views
              WHERE page_url NOT LIKE '/admin%'
-             GROUP BY page_url 
+             GROUP BY page_url
              ORDER BY total_views DESC`
         );
         return rows;
@@ -147,11 +160,11 @@ async function getViewsByPage() {
     }
 }
 
-module.exports = { 
-    trackHomepageView, 
+module.exports = {
+    trackHomepageView,
     recordHomepageView,
     getHomepageViews,
     getViewsByDate,
-    getTotalViews, 
-    getViewsByPage 
+    getTotalViews,
+    getViewsByPage
 };

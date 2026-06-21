@@ -34,6 +34,7 @@ let selectedCollectionId = null;
 let currentEditingId = null;
 let editingCardIndex = -1;
 let editingCardId = null;
+let sampleContents = []; // Flashcard mẫu từ bảng contents
 
 const inboxButton = document.getElementById("inboxButton");
 const notificationBadge = document.getElementById("notificationBadge");
@@ -51,6 +52,7 @@ init();
 async function init() {
     collections = await loadCollections();
     selectedCollectionId = collections[0]?.id ?? null;
+    sampleContents = await loadSampleContents();
     renderCollections();
 }
 
@@ -77,9 +79,41 @@ async function loadCollections() {
     }
 }
 
+// Nạp danh sách flashcard mẫu từ bảng contents
+async function loadSampleContents() {
+    try {
+        const res = await fetch('/api/contents');
+        const data = await res.json();
+        return data.success ? data.contents : [];
+    } catch (err) {
+        console.error('Không tải được flashcard mẫu:', err);
+        return [];
+    }
+}
+
 // Vẽ lại danh sách bộ sưu tập trên trang chủ và giữ trạng thái đang chọn.
 function renderCollections() {
     collectionGrid.innerHTML = "";
+
+    // Hiển thị flashcard mẫu từ contents trước
+    if (sampleContents.length > 0) {
+        sampleContents.forEach((content) => {
+            const card = document.createElement("div");
+            card.className = "collection-card sample-card";
+            card.type = "button";
+
+            card.innerHTML = `
+                <div class="card-top">
+                    <span class="folder-icon">★</span>
+                    <span class="status sample">Mẫu</span>
+                </div>
+                <h2>${escapeHtml(content.title)}</h2>
+                <p>${escapeHtml(content.body)}</p>
+            `;
+
+            collectionGrid.appendChild(card);
+        });
+    }
 
     collections.forEach((collection) => {
         const card = document.createElement("button");
