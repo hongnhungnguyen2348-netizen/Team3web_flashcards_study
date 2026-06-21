@@ -27,7 +27,7 @@
 | STT | Họ và tên                |  Mã số SV   | Vai trò                      | Công việc đảm nhận                                                                                                                                                                                     |
 | :-: | :----------------------- | :---------: | :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |  1  | **Nguyễn Lê Hồng Nhung** | _202411982_ | **Frontend Leader**          | Thiết kế UI/UX, xây dựng Layout & Header/Footer dùng chung, xử lý Responsive (breakpoints 800px, 1200px), thiết kế hiệu ứng CSS (box-shadow, transition, animation 3D flip card)                       |
-|  2  | **Lê Mạnh Đức**          |  _[MSSV]_   | **Frontend JS Developer**    | Xử lý logic Client (JavaScript), code AJAX/Fetch API cho hệ thống bình luận, bộ lọc từ xấu (Bad Words Filter), xử lý Popup hướng dẫn Quiz và tương tác trang, điều hướng SPA (Single Page Application) |
+|  2  | **Lê Mạnh Đức**          |  _[MSSV]_   | **Frontend JS Developer**    | Xử lý logic Client (JavaScript), code AJAX/Fetch API cho hệ thống bình luận, xử lý Popup hướng dẫn Quiz và tương tác trang, điều hướng SPA (Single Page Application) |
 |  3  | **Đinh Thu Thảo**        |  _[MSSV]_   | **Backend Leader**           | Thiết kế kiến trúc Server (Express.js), hệ thống Route, xây dựng Middleware (Auth, ViewCounter), quản lý luồng Request-Response và thiết kế hệ thống API                                               |
 |  4  | **Nguyễn Vân Thương**    |  _[MSSV]_   | **Backend Database & Admin** | Thiết kế Cơ sở dữ liệu MySQL (4 bảng: users, comments, contents, page_views), thực hiện các thao tác CRUD, xây dựng trang Quản trị (Admin Dashboard), thống kê lượt view                               |
 
@@ -539,15 +539,7 @@ Hiện tại dự án chưa sử dụng file `.env`, các thông số cấu hìn
 - Danh sách từ xấu được định nghĩa trong `comment.js`:
   ```javascript
   const badWords = [
-    "địt",
-    "cặc",
-    "lồn",
-    "chó",
-    "cút",
-    "dm",
-    "đmm",
-    "vcl",
-    "loz",
+    
   ];
   ```
 - Hàm `containsBadWords(text)` chuyển nội dung về chữ thường và kiểm tra bằng `some()` + `includes()`
