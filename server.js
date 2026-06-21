@@ -26,6 +26,7 @@ const commentRoutes = require('./src/routes/comment');
 const authRoutes = require('./src/routes/authRoutes');
 const viewRoutes = require('./src/routes/viewRoutes'); // THÊM DÒNG NÀY
 const userRoutes = require('./src/routes/userRoutes');
+const flashcardRoutes = require('./src/routes/flashcardRoutes');
 
 // === Dùng routes ===
 app.use('/admin', adminRoutes);
@@ -33,6 +34,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/views', viewRoutes); // THÊM DÒNG NÀY
 app.use('/api/users', userRoutes);
+app.use('/api/flashcards', flashcardRoutes);
 
 
 // === Static file để ở SAU CÙNG ===

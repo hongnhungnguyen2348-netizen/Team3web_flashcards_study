@@ -75,3 +75,31 @@ CREATE TABLE `view_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+DROP TABLE IF EXISTS `flashcard_cards`;
+DROP TABLE IF EXISTS `flashcard_collections`;
+
+CREATE TABLE `flashcard_collections` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `status` varchar(50) DEFAULT 'Đang học',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `flashcard_collections_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `flashcard_cards` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `collection_id` int NOT NULL,
+  `term` varchar(500) NOT NULL,
+  `definition` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `collection_id` (`collection_id`),
+  CONSTRAINT `flashcard_cards_collection_fk` FOREIGN KEY (`collection_id`) REFERENCES `flashcard_collections` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
