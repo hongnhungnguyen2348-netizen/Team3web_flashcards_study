@@ -6,8 +6,6 @@ exports.getUserList = async (req, res) => {
     try {
         const [users] = await db.execute(
             `SELECT id, username, email, role, 
-             CASE WHEN is_locked = 1 THEN '🔒 Đã khóa' ELSE '✅ Hoạt động' END as status,
-             is_locked,
              created_at 
              FROM users 
              WHERE role != 'admin'
@@ -25,27 +23,18 @@ exports.toggleLockUser = async (req, res) => {
         const userId = req.params.id;
         
         // Lấy trạng thái hiện tại
-        const [user] = await db.execute(
-            `SELECT is_locked FROM users WHERE id = ? AND role != 'admin'`,
-            [userId]
-        );
         
         if (user.length === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
         }
         
-        const newLockStatus = user[0].is_locked ? 0 : 1;
         const statusText = newLockStatus ? 'khóa' : 'mở khóa';
         
-        await db.execute(
-            `UPDATE users SET is_locked = ? WHERE id = ?`,
-            [newLockStatus, userId]
-        );
+
         
         res.json({ 
             success: true, 
-            message: `Đã ${statusText} tài khoản thành công`,
-            is_locked: newLockStatus
+            message: `Đã ${statusText} tài khoản thành công`
         });
     } catch (err) {
         res.json({ success: false, error: err.message });

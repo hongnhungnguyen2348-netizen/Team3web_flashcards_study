@@ -47,7 +47,7 @@ async function signin(req, res) {
 
         // Lấy thông tin user bao gồm is_locked
         const [rows] = await db.execute(
-            'SELECT id, username, email, password, role, is_locked FROM users WHERE username = ?',
+            'SELECT id, username, email, password, role FROM users WHERE username = ?',
             [username]
         );
         
@@ -58,12 +58,6 @@ async function signin(req, res) {
         const user = rows[0];
 
         // KIỂM TRA TÀI KHOẢN BỊ KHÓA
-        if (user.is_locked === 1) {
-            return res.status(403).json({ 
-                ok: false, 
-                msg: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' 
-            });
-        }
 
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
