@@ -3,7 +3,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser"); // THÊM DÒNG NÀY
 const { trackHomepageView } = require("./src/middleware/viewCounter");
 const Database = require("better-sqlite3");
-const db = new Database("./database.db");
+const db = new Database("./web_login.db");
 const app = express();
 
 app.set("view engine", "ejs");
