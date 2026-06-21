@@ -131,7 +131,7 @@ function renderCollections() {
                 <span class="status ${collection.status === "Đã nhớ" ? "remembered" : "learning"}">${escapeHtml(collection.status)}</span>
             </div>
             <h2>${escapeHtml(collection.name)}</h2>
-            <p>${collection.cards.length} thẻ bên trong</p>
+            <p>${(collection.cards || []).length} thẻ bên trong</p>
         `;
 
         card.addEventListener("click", () => selectCollection(collection.id));
@@ -155,7 +155,7 @@ function updateSelectedHint() {
         return;
     }
 
-    selectedHint.textContent = `Đang chọn: ${collection.name} (${collection.cards.length} thẻ).`;
+    selectedHint.textContent = `Đang chọn: ${collection.name} (${(collection.cards || []).length} thẻ).`;
 }
 
 function getSelectedCollection() {
@@ -277,7 +277,7 @@ async function addFlashcard() {
 function renderCreatedCards() {
     const collection = collections.find((item) => item.id === currentEditingId);
 
-    if (!collection || collection.cards.length === 0) {
+    if (!collection || !collection.cards || collection.cards.length === 0) {
         createdCards.innerHTML = '<p class="empty-state">Chưa có thẻ nào trong bộ này.</p>';
         return;
     }
@@ -363,7 +363,7 @@ function studySelectedCollection() {
         return;
     }
 
-    if (collection.cards.length === 0) {
+    if (!collection.cards || collection.cards.length === 0) {
         alert("Bộ sưu tập này chưa có flashcard để học.");
         return;
     }
