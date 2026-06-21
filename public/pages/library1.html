@@ -128,35 +128,36 @@
             <p class="modal-error" id="modalError"></p>
 
             <div class="modal-actions">
-                <div class="notification-dropdown" id="notificationDropdown">
-    <div class="dropdown-header">
-        <h3>Thông báo</h3>
-        <button class="mark-read-btn" id="markAllRead">Đánh dấu tất cả đã đọc</button>
-    </div>
-    <div class="notification-list" id="notificationList">
-        <p class="empty-notification">Chưa có thông báo nào</p>
-    </div>
-</div>
-<!-- Popup chi tiết thông báo -->
-<div class="modal-overlay" id="notificationModal" aria-hidden="true">
-    <div class="modal notification-modal" role="dialog" aria-modal="true">
-        <div class="modal-header">
-            <h2 id="modalNotificationTitle">Tiêu đề</h2>
-            <button class="close-modal" id="closeNotificationModal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p id="modalNotificationMessage">Nội dung thông báo</p>
-        </div>
-        <div class="modal-footer">
-            <span class="notification-time" id="modalNotificationTime"></span>
-        </div>
-    </div>
-</div>
                 <button class="secondary-button" type="button" id="cancelCreate">Hủy</button>
                 <button class="primary-button" type="button" id="confirmCreate">Tạo</button>
             </div>
         </div>
     </div>
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="dropdown-header">
+            <h3>Thông báo</h3>
+            <button class="mark-read-btn" id="markAllRead">Đánh dấu tất cả đã đọc</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notification">Chưa có thông báo nào</p>
+        </div>
+    </div>
+    <!-- Popup chi tiết thông báo -->
+    <div class="modal-overlay" id="notificationModal" aria-hidden="true">
+        <div class="modal notification-modal" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <h2 id="modalNotificationTitle">Tiêu đề</h2>
+                <button class="close-modal" id="closeNotificationModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalNotificationMessage">Nội dung thông báo</p>
+            </div>
+            <div class="modal-footer">
+                <span class="notification-time" id="modalNotificationTime"></span>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/library1.js"></script>
 </body>
 
