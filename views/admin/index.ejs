@@ -5,6 +5,124 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản trị - Auto Quiz</title>
   <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    /* Style cho nút phản hồi */
+    .btn-reply {
+      background: none;
+      border: 1px solid #007bff;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: #007bff;
+      transition: all 0.2s;
+      margin-right: 5px;
+    }
+    
+    .btn-reply:hover {
+      background: #007bff;
+      color: white;
+    }
+    
+    .action-cell {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    
+    /* Modal popup */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    .modal-content h3 {
+      margin-bottom: 1rem;
+      color: #1a1a1a;
+    }
+    
+    .modal-content .info {
+      background: #f5f5f0;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .modal-content textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 1rem;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    
+    .modal-actions button {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    
+    .btn-send {
+      background: #1a1a1a;
+      color: white;
+    }
+    
+    .btn-send:hover {
+      background: #333;
+    }
+    
+    .btn-cancel {
+      background: #e0e0e0;
+      color: #333;
+    }
+    
+    .btn-cancel:hover {
+      background: #ccc;
+    }
+    
+    .reply-status {
+      font-size: 0.8rem;
+      color: #28a745;
+      margin-top: 5px;
+    }
+    
+    .has-reply {
+      border-left: 3px solid #28a745;
+    }
+  </style>
 </head>
 <body>
 
@@ -17,41 +135,56 @@
     
     <!-- 3 thống kê chính -->
     <div class="stats-grid">
-  <div class="stat-card">
-    <h3> LƯỢT XEM TRANG </h3>
-    <div class="stat-number"><%= totalViews %></div>
-  </div>
-  <div class="stat-card">
-    <h3> TỔNG BÌNH LUẬN</h3>
-    <div class="stat-number"><%= totalComments %></div>
-  </div>
-  
-</div>
+      <div class="stat-card">
+        <h3>📊 LƯỢT XEM TRANG</h3>
+        <div class="stat-number"><%= totalViews %></div>
+      </div>
+      <div class="stat-card">
+        <h3>💬 TỔNG BÌNH LUẬN</h3>
+        <div class="stat-number"><%= totalComments %></div>
+      </div>
+    </div>
 
     <!-- Quản lý bình luận -->
     <div class="comments-section">
-      <h2 class="section-title"> Quản lý bình luận</h2>
+      <h2 class="section-title">📋 Quản lý bình luận & góp ý</h2>
       
       <% if(comments.length === 0) { %>
         <p style="color: #999; text-align: center;">Chưa có bình luận nào.</p>
       <% } else { %>
         <table class="comments-table">
           <thead>
-            <tr><th>Người dùng</th><th>Email</th><th>Bình luận</th><th>Ngày</th><th></th></tr>
+            <tr>
+              <th>Người dùng</th>
+              <th>Email</th>
+              <th>Bình luận</th>
+              <th>Ngày</th>
+              <th>Thao tác</th>
+            </tr>
           </thead>
           <tbody id="commentList">
             <% comments.forEach(comment => { 
-              // Không cần tách email từ content nữa
-              // Lấy trực tiếp từ cột email
               const email = comment.email || '---';
               const content = comment.content;
             %>
-              <tr data-id="<%= comment.id %>">
+              <tr data-id="<%= comment.id %>" class="<%= comment.has_reply ? 'has-reply' : '' %>">
                 <td><%= comment.username %></td>
                 <td style="word-break: break-all;"><%= email %></td>
-                <td class="comment-content"><%= content %></td>
+                <td class="comment-content">
+                  <%= content %>
+                  <% if (comment.has_reply) { %>
+                    <div class="reply-status">✅ Đã phản hồi</div>
+                  <% } %>
+                </td>
                 <td><%= new Date(comment.createdAt).toLocaleDateString('vi-VN') %></td>
-                <td><button class="btn-delete delete-comment">Xóa</button></td>
+                <td>
+                  <div class="action-cell">
+                    <button class="btn-reply reply-btn" data-id="<%= comment.id %>" data-username="<%= comment.username %>" data-content="<%= content.replace(/"/g, '&quot;') %>">
+                      💬 Phản hồi
+                    </button>
+                    <button class="btn-delete delete-comment">Xóa</button>
+                  </div>
+                </td>
               </tr>
             <% }) %>
           </tbody>
@@ -60,12 +193,122 @@
     </div>
 
     <!-- Gợi ý nhanh -->
-    <!-- Gợi ý nhanh -->
     <div style="background: white; border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid #eee;">
-      <a href="/admin/users" style="color: #1a1a1a; margin-left: 0.5rem;"> Quản lý người dùng →</a>
+      <a href="/admin/users" style="color: #1a1a1a; margin-left: 0.5rem;">👥 Quản lý người dùng →</a>
     </div>
   </main>
 
+  <!-- Modal phản hồi -->
+  <div class="modal-overlay" id="replyModal">
+    <div class="modal-content">
+      <h3>💬 Phản hồi góp ý</h3>
+      <div class="info">
+        <strong>Người gửi:</strong> <span id="replyUsername"></span><br>
+        <strong>Nội dung:</strong> <span id="replyContent"></span>
+      </div>
+      <textarea id="replyText" placeholder="Nhập phản hồi của bạn..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeReplyModal()">Hủy</button>
+        <button class="btn-send" id="sendReplyBtn">📤 Gửi phản hồi</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/admin.js"></script>
+  <script>
+    // Biến lưu comment_id đang được phản hồi
+    let currentCommentId = null;
+
+    // Mở modal phản hồi
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const commentId = this.dataset.id;
+        const username = this.dataset.username;
+        const content = this.dataset.content;
+        
+        currentCommentId = commentId;
+        document.getElementById('replyUsername').textContent = username;
+        document.getElementById('replyContent').textContent = content;
+        document.getElementById('replyText').value = '';
+        document.getElementById('replyModal').classList.add('active');
+      });
+    });
+
+    // Đóng modal
+    function closeReplyModal() {
+      document.getElementById('replyModal').classList.remove('active');
+      currentCommentId = null;
+    }
+
+    // Đóng modal khi click bên ngoài
+    document.getElementById('replyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeReplyModal();
+      }
+    });
+
+    // Gửi phản hồi
+    document.getElementById('sendReplyBtn').addEventListener('click', async function() {
+      const replyText = document.getElementById('replyText').value.trim();
+      
+      if (!replyText) {
+        alert('Vui lòng nhập nội dung phản hồi!');
+        return;
+      }
+      
+      if (!currentCommentId) {
+        alert('Không tìm thấy bình luận!');
+        return;
+      }
+      
+      try {
+        this.disabled = true;
+        this.textContent = 'Đang gửi...';
+        
+        const response = await fetch('/api/comments/reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            commentId: currentCommentId,
+            reply: replyText
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('✅ ' + result.message);
+          // Đánh dấu dòng đã phản hồi
+          const row = document.querySelector(`tr[data-id="${currentCommentId}"]`);
+          if (row) {
+            row.classList.add('has-reply');
+            const contentCell = row.querySelector('.comment-content');
+            if (!contentCell.querySelector('.reply-status')) {
+              const status = document.createElement('div');
+              status.className = 'reply-status';
+              status.textContent = '✅ Đã phản hồi';
+              contentCell.appendChild(status);
+            }
+          }
+          closeReplyModal();
+        } else {
+          alert('❌ ' + (result.message || result.error || 'Gửi phản hồi thất bại'));
+        }
+      } catch (err) {
+        alert('❌ Lỗi kết nối: ' + err.message);
+      } finally {
+        this.disabled = false;
+        this.textContent = '📤 Gửi phản hồi';
+      }
+    });
+
+    // Bắt phím Enter trong textarea (Ctrl+Enter để gửi)
+    document.getElementById('replyText').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        document.getElementById('sendReplyBtn').click();
+      }
+    });
+  </script>
 </body>
 </html>
