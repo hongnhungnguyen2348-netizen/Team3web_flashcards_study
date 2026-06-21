@@ -1,12 +1,12 @@
 const db = require('../config/database');
-const { getHomepageViews } = require('../middleware/viewCounter'); // Dòng này phải đúng
+const { getHomepageViews } = require('../middleware/viewCounter');
 
-console.log('getHomepageViews trong adminController:', typeof getHomepageViews); // Thêm dòng debug
+console.log('getHomepageViews trong adminController:', typeof getHomepageViews);
 
 // Trang admin dashboard
 exports.getAdminDashboard = async (req, res) => {
   try {
-    console.log('Đang chạy getAdminDashboard...'); // Debug
+    console.log('Đang chạy getAdminDashboard...');
     
     const [commentRows] = await db.execute('SELECT COUNT(*) as count FROM comments');
     const totalComments = commentRows[0].count;
@@ -14,13 +14,19 @@ exports.getAdminDashboard = async (req, res) => {
     const [contentRows] = await db.execute('SELECT COUNT(*) as count FROM contents');
     const totalFlashcards = contentRows[0].count;
     
+    // SỬA: Thêm has_reply vào query
     const [comments] = await db.execute(`
-      SELECT * FROM comments ORDER BY createdAt DESC LIMIT 20
+      SELECT c.*, 
+             CASE WHEN fr.id IS NOT NULL THEN 1 ELSE 0 END as has_reply
+      FROM comments c
+      LEFT JOIN feedback_replies fr ON c.id = fr.comment_id
+      ORDER BY c.createdAt DESC 
+      LIMIT 20
     `);
     
-    console.log('Đang gọi getHomepageViews...'); // Debug
+    console.log('Đang gọi getHomepageViews...');
     const totalViews = await getHomepageViews();
-    console.log('totalViews:', totalViews); // Debug
+    console.log('totalViews:', totalViews);
     
     res.render('admin/index', {
       totalViews: totalViews,
@@ -33,8 +39,6 @@ exports.getAdminDashboard = async (req, res) => {
     res.status(500).send('Lỗi server: ' + err.message);
   }
 };
-
-// ... các hàm khác giữ nguyên
 
 // Xóa comment
 exports.deleteComment = async (req, res) => {
