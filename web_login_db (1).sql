@@ -102,4 +102,28 @@ CREATE TABLE `flashcard_cards` (
   CONSTRAINT `flashcard_cards_collection_fk` FOREIGN KEY (`collection_id`) REFERENCES `flashcard_collections` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Thêm bảng lưu phản hồi
+CREATE TABLE `feedback_replies` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `comment_id` int NOT NULL,
+  `admin_username` varchar(50) NOT NULL,
+  `reply` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `comment_id` (`comment_id`),
+  CONSTRAINT `feedback_replies_comment_fk` FOREIGN KEY (`comment_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Thêm bảng lưu thông báo
+CREATE TABLE `notifications` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(50) DEFAULT 'info',
+  `is_read` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifications_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
