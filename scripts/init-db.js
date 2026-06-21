@@ -28,7 +28,7 @@ if (fs.existsSync(dbPath)) {
 const db = new Database(dbPath);
 
 // Bật foreign keys và WAL mode
-db.pragma('journal_mode = WAL');
+db.pragma('journal_mode = DELETE');
 db.pragma('foreign_keys = ON');
 
 console.log('🗄️ Đã tạo database SQLite mới tại:', dbPath);
