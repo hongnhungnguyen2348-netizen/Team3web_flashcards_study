@@ -16,7 +16,6 @@ const selectedCollectionId = new URLSearchParams(window.location.search).get("id
 let activeCollection = null;
 let cards = [];
 let currentIndex = 0;
-let studyStatus = [];
 
 initializeStudyPage();
 
@@ -35,7 +34,6 @@ async function initializeStudyPage() {
     }
 
     cards = activeCollection?.cards || [];
-    studyStatus = new Array(cards.length).fill("");
 
     if (!activeCollection || cards.length === 0) {
         collectionTitle.textContent = "Chưa có flashcard để học";
@@ -92,16 +90,6 @@ function showNextCard() {
     renderCurrentCard();
 }
 
-// Đánh dấu trạng thái học tập của thẻ hiện tại.
-function markCurrentCard(status) {
-    if (cards.length === 0) {
-        return;
-    }
-
-    studyStatus[currentIndex] = status;
-    rememberedButton.classList.toggle("active", status === "remembered");
-    forgotButton.classList.toggle("active", status === "forgot");
-}
 
 backButton.addEventListener("click", () => {
     window.location.href = "library1.html";
@@ -110,5 +98,3 @@ backButton.addEventListener("click", () => {
 flipCard.addEventListener("click", toggleFlipCard);
 prevButton.addEventListener("click", showPreviousCard);
 nextButton.addEventListener("click", showNextCard);
-rememberedButton.addEventListener("click", () => markCurrentCard("remembered"));
-forgotButton.addEventListener("click", () => markCurrentCard("forgot"));
