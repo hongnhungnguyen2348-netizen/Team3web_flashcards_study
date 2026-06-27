@@ -98,36 +98,6 @@ async function recordHomepageView(req, res) {
     }
 }
 
-// Hàm lấy tổng số lượt xem homepage
-async function getHomepageViews() {
-    try {
-        const [rows] = await db.execute(
-            `SELECT SUM(view_count) as total FROM page_views WHERE page_url = '/'`
-        );
-        return rows[0].total || 0;
-    } catch (err) {
-        console.error('Lỗi lấy lượt xem homepage:', err);
-        return 0;
-    }
-}
-
-// Hàm lấy số lượt xem theo ngày
-async function getViewsByDate() {
-    try {
-        const [rows] = await db.execute(
-            `SELECT view_date, SUM(view_count) as total
-             FROM page_views
-             WHERE page_url NOT LIKE '/admin%'
-             GROUP BY view_date
-             ORDER BY view_date DESC
-             LIMIT 30`
-        );
-        return rows;
-    } catch (err) {
-        console.error('Lỗi lấy thống kê theo ngày:', err);
-        return [];
-    }
-}
 
 // Hàm lấy tổng số lượt xem (không tính admin)
 async function getTotalViews() {
@@ -143,28 +113,10 @@ async function getTotalViews() {
     }
 }
 
-// Hàm lấy lượt xem theo từng trang
-async function getViewsByPage() {
-    try {
-        const [rows] = await db.execute(
-            `SELECT page_url, SUM(view_count) as total_views
-             FROM page_views
-             WHERE page_url NOT LIKE '/admin%'
-             GROUP BY page_url
-             ORDER BY total_views DESC`
-        );
-        return rows;
-    } catch (err) {
-        console.error('Lỗi lấy thống kê theo trang:', err);
-        return [];
-    }
-}
+
 
 module.exports = {
     trackHomepageView,
     recordHomepageView,
-    getHomepageViews,
-    getViewsByDate,
     getTotalViews,
-    getViewsByPage
 };
